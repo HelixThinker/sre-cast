@@ -1,0 +1,20 @@
+{
+  "skill": "mock-cast-foundation",
+  "should_trigger": [
+    "Use the mock SRE CAST skill to draft the foundation for this outage.",
+    "From these incident notes, identify provisional losses, hazards, constraints, and open questions.",
+    "Demonstrate the CAST foundation workflow without doing controller analysis."
+  ],
+  "should_not_trigger": [
+    "Write the final postmortem and assign action-item owners.",
+    "Perform a complete controller and systemic-factor CAST analysis.",
+    "Summarize this incident timeline in three sentences."
+  ],
+  "quality_assertions": [
+    "The output is marked mock-draft and requires human review.",
+    "Facts, interpretations, hypotheses, and unknowns remain distinct.",
+    "Missing information becomes an open question rather than an invented fact.",
+    "The workflow stops before controller analysis and recommendations.",
+    "All template placeholders are replaced before the draft is returned."
+  ]
+}

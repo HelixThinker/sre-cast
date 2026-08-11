@@ -1,0 +1,7 @@
+interface:
+  display_name: "Mock CAST Foundation"
+  short_description: "Draft a traceable CAST foundation"
+  default_prompt: "Use $mock-cast-foundation to draft a CAST foundation from this incident evidence."
+
+policy:
+  allow_implicit_invocation: false
