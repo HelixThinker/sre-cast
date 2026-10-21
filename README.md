@@ -1,126 +1,111 @@
 # SRE CAST
 
-An open toolkit for applying CAST (Causal Analysis based on System Theory) to
-SRE incidents with AI assistance.
+SRE CAST is an open project for AI-assisted review of SRE postmortems using
+CAST (Causal Analysis based on System Theory).
 
-The project will provide reusable AI rules, guided analysis skills, templates,
-worked examples, and a public website. It is not limited to storing individual
-postmortems.
+It helps an engineer examine an incident explanation, find gaps in the evidence,
+understand decisions and feedback, and prepare useful questions and improvements.
 
-CAST is an analysis method rather than an incident investigation technique. It
-helps analysts determine which questions still need answers and why the existing
-control structure did not prevent a loss. See the
-[CAST Handbook, pp. 34-35](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf#page=34).
+## First product
 
-## Project goals
+The first product is one skill, `sre-cast-review`, for engineers preparing or
+reviewing a postmortem.
 
-- Make systems-based incident analysis accessible to SRE teams.
-- Provide reusable rules that improve the quality and integrity of AI-assisted
-  analysis.
-- Provide AI skills that guide people through CAST without turning it into a
-  rigid checklist.
-- Publish worked examples that show both the analysis process and its outputs.
-- Present the method, skills, and examples through GitHub Pages.
-- Keep every method-related recommendation traceable to the source books.
+Give it an incident report and the available supporting material. The intended
+result is a concise review containing:
 
-The workflows must remain iterative. The five parts of CAST are not rigid,
-linear steps, and an analysis should revisit earlier results when new evidence
-appears. See the
-[CAST Handbook, p. 35](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf#page=35).
+- **Supported conclusions and gaps:** what the sources establish, what is an
+  interpretation, where accounts conflict, and what remains unknown.
+- **Control and feedback analysis:** who or what made relevant decisions, which
+  signals were available, and which constraints applied.
+- **Prioritized questions:** what to ask incident participants next and why each
+  answer matters.
+- **Improvement discussion:** how existing action items and new proposals relate
+  to the analysis, and how their intended effect could be observed.
 
-## Repository structure
+When the evidence is incomplete, a useful result is a clear set of next questions
+and explicit limits on the conclusions. The review can continue as new evidence
+arrives.
 
-```text
-.
-├── README.md
-├── rules/            # Portable rules for AI-assisted CAST analysis
-├── skills/           # Reusable AI workflows and supporting resources
-├── templates/        # Shared, tool-independent analysis templates
-├── examples/         # Worked CAST cases and their evidence
-└── docs/             # GitHub Pages source
-```
+## Example of the intended interaction
 
-Possible automation and validation tools will be added only when a concrete
-workflow requires them.
+An incident report says:
 
-## Method references
+> An incorrect configuration caused the outage. We will add configuration review.
 
-The project is based on the official handbooks published by the MIT Partnership
-for Systems Approaches to Safety and Security:
+A useful review asks:
 
-- [CAST Handbook](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf)
-- [STPA Handbook](https://psas.scripts.mit.edu/home/get_file.php?name=STPA_handbook.pdf)
-- [MIT PSASS Books and Handbooks](https://psas.scripts.mit.edu/home/books-and-handbooks/)
+- What limited the scope of the configuration rollout?
+- Which signals determined whether the rollout should continue?
+- What information was available to the engineer at the time?
+- How would the proposed review detect this particular class of problem?
 
-Methodological claims in rules, skills, templates, examples, and documentation
-must link to an official publication and the relevant page.
+These are illustrative questions. Answers must come from the incident material
+or its participants.
 
-### `rules/`
+## How the analysis works
 
-Contains short, portable instructions that can be added to an AI assistant's
-project rules or system prompt. Rules define non-negotiable analysis properties,
-such as evidence handling, uncertainty labeling, blameless language, terminology,
-and source citation.
+CAST examines why the control structure did not prevent a loss and helps identify
+which questions still need answers. Its analysis areas can be revisited as more
+is learned. See the [CAST Handbook](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf),
+printed pages 31–35.
 
-The no-blame rule follows CAST's explanatory approach: describe what happened
-and why it made sense in context instead of stopping at a person or component
-"failure." See the
-[CAST Handbook, pp. 19-23](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf#page=19).
+The project applies these principles to incident reviews:
 
-See [`rules/`](rules/README.md).
+- Link important factual claims to specific supporting source passages.
+- Distinguish what a source reports from what has been independently confirmed.
+- Keep facts, interpretations, hypotheses, contradictions, and unknowns visible.
+- Explain decisions in their context using blameless language.
+- Relate improvement proposals to the evidence and the analyzed control
+  weaknesses.
+- Keep proposed improvements distinct from actions already agreed by a team.
+- State the scope and limits of each review, including missing internal context.
 
-### `skills/`
+## Plan for v0.1
 
-Contains complete AI-assisted workflows. A skill may guide a user through one
-part of CAST or orchestrate an end-to-end analysis. Skills may include their own
-references, templates, validation scripts, and small usage examples.
+| Order | Deliverable | Issue |
+| --- | --- | --- |
+| 1 | Publish a useful review of one real public incident with detailed source material. | [#9 — First worked review](https://github.com/HelixThinker/sre-cast/issues/9) |
+| 2 | Turn that workflow into one usable skill with a short installation and usage guide. | [#6 — Review skill and quickstart](https://github.com/HelixThinker/sre-cast/issues/6) |
+| 3 | Publish a second review showing useful questions and explicit limits when evidence is incomplete. | [#10 — Incomplete-evidence example](https://github.com/HelixThinker/sre-cast/issues/10) |
 
-A skill must generate and track open questions instead of inventing missing
-facts. CAST uses these questions to guide evidence collection and deepen the
-causal explanation. See the
-[CAST Handbook, p. 35](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf#page=35).
+The v0.1 deliverables are the skill, its quickstart, and two worked reviews.
 
-See [`skills/`](skills/README.md).
+## Development approach
 
-### `templates/`
+Development is kept lightweight while the project is built by its maintainer
+with AI assistance. Work directly on the examples and skill, and improve them
+through use.
 
-Contains shared Markdown and diagram templates used by skills and examples.
-Templates provide structure without pretending that CAST is a fixed recipe.
+The active plan has no standalone infrastructure workstream: source registries,
+formal artifact or portability contracts, validators, CI, eval frameworks,
+model benchmarks, and separate re-review or approval stages are outside v0.1.
 
-See [`templates/`](templates/README.md).
+Use ordinary Markdown, direct source links, and only the structure needed by the
+current example. Add tooling when a concrete recurring need appears.
 
-### `examples/`
-
-Contains worked CAST analyses. Each example keeps evidence, open questions,
-analysis artifacts, diagrams, recommendations, follow-up, and the final report
-together. Examples are the canonical source material that will later be rendered
-for the website.
-
-See [`examples/`](examples/README.md).
-
-### `docs/`
-
-Contains the GitHub Pages source. The site will explain the method, publish the
-available rules and skills, and present worked examples in a readable visual
-form. The website must consume or link to canonical content from `examples/`
-rather than create a second independent analysis.
-
-Hyperlinks are especially appropriate for CAST because the final representation
-should preserve relationships among evidence, questions, controllers, causal
-factors, and recommendations. See the
-[CAST Handbook, p. 92](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf#page=92).
-
-See [`docs/`](docs/index.md).
-
-## Development sequence
-
-1. Define the first portable AI rules.
-2. Create the first focused CAST skill and its templates.
-3. Apply the skill to one public SRE incident and publish it under `examples/`.
-4. Build the GitHub Pages presentation around the real example.
-5. Add validation and automation only after the manual workflow is understood.
+The intended locations are `skills/sre-cast-review/` for the skill and
+`examples/` for worked reviews. Bundle the method references and output
+resources that the skill actually uses. Broader template libraries, additional
+skills, integrations, and a public website can follow practical use.
 
 ## Current status
 
-The repository structure and responsibilities are defined. Rules, skills,
-templates, examples, and the website will be implemented incrementally.
+The postmortem-review direction and the three tasks above are the current plan.
+The usable review skill and worked examples are still to be built.
+
+An earlier `mock-cast-foundation` prototype is available in
+[PR #8](https://github.com/HelixThinker/sre-cast/pull/8). It provides reusable
+starting material and stops before controller analysis and recommendations.
+It is not the v0.1 review skill. Earlier standalone infrastructure tasks have
+been closed as not planned.
+
+## Method sources
+
+- [CAST Handbook](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf)
+  — the primary reference for incident analysis.
+- [MIT PSASS Books and Handbooks](https://psas.scripts.mit.edu/home/books-and-handbooks/)
+  — official method publications.
+
+Method references identify the relevant printed handbook pages. Cite incident
+evidence alongside the analysis it supports.
