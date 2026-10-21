@@ -83,6 +83,31 @@ h1 span { color:var(--accent); }
 .label-bg { fill:var(--surface); }
 .wire-label { fill:var(--muted); font:15px system-ui,sans-serif; }
 .unknown-label { fill:var(--unknown); font:15px system-ui,sans-serif; }
+.preview-edge { cursor:pointer; }
+.edge-hit { fill:none; stroke:transparent; stroke-width:24; pointer-events:stroke; }
+.preview-edge:hover .label-bg { fill:var(--soft); }
+.preview-edge[data-selected="true"] .label-bg { fill:var(--accent-soft); stroke:var(--accent); stroke-width:2; }
+.preview-edge[data-selected="true"] .wire { stroke:var(--accent); stroke-width:4; }
+.preview-edge[data-selected="true"] .unknown-wire { stroke-width:4; }
+.preview-edge[data-selected="true"] .unknown-label { font-weight:650; }
+.preview-controls { display:flex; flex-wrap:wrap; gap:8px; padding:16px 24px; border-top:1px solid var(--border); }
+.preview-controls button { text-align:left; font-size:.875rem; }
+.preview-controls button[aria-pressed="true"] { background:var(--accent); color:var(--on-accent); border-color:var(--accent); }
+.inline-analysis { grid-column:1/-1; min-width:0; border:1px solid var(--border); border-radius:16px; background:var(--surface); padding:28px; scroll-margin-top:24px; }
+.analysis-header { display:flex; justify-content:space-between; align-items:flex-start; gap:24px; }
+.analysis-header h2 { font-size:1.6rem; margin:12px 0 8px; }
+.analysis-header p { color:var(--muted); margin:0; }
+.analysis-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px 40px; margin-top:24px; }
+.analysis-grid section { min-width:0; }
+.analysis-grid h3 { font-size:1rem; margin:0 0 8px; }
+.analysis-grid p { color:var(--muted); margin:0; }
+.analysis-grid ul { padding-left:20px; margin:0; }
+.analysis-grid li+li { margin-top:16px; }
+.analysis-grid small { display:block; margin-top:6px; color:var(--muted); font-size:.875rem; }
+.analysis-grid a,.analysis-grid small { overflow-wrap:anywhere; }
+.analysis-notice { color:var(--muted); margin:16px 0 0; }
+.analysis-help { color:var(--muted); font-size:.875rem; margin:24px 0 0; border-top:1px solid var(--border); padding-top:16px; }
+.hero:has(.inline-analysis:not([hidden])) { row-gap:28px; }
 figcaption { border-top:1px solid var(--border); padding:16px 24px; font-size:.875rem; }
 .legend { display:flex; flex-wrap:wrap; gap:24px; color:var(--muted); margin-bottom:8px; }
 .legend span { display:flex; align-items:center; gap:8px; }
@@ -146,6 +171,10 @@ footer div { display:flex; gap:24px; }
   .finding { grid-template-columns:30px 1fr; gap:12px; padding-block:26px; }
   .recommendation { grid-column:2; }
   .preview-heading,figcaption { padding:16px; }
+  .preview-controls { padding:16px; }
+  .analysis-grid { grid-template-columns:1fr; }
+  .inline-analysis { padding:20px; }
+  .analysis-header { flex-wrap:wrap; gap:12px; }
 }
 @media(forced-colors:active) {
   .node-box { fill:Canvas; stroke:CanvasText; }
@@ -154,6 +183,9 @@ footer div { display:flex; gap:24px; }
   .wire,.unknown-wire { stroke:CanvasText; }
   .wire-tip,.unknown-tip { fill:CanvasText; }
   .status { border:1px solid CanvasText; }
+  .preview-edge[data-selected="true"] .label-bg { fill:Canvas; stroke:Highlight; }
+  .preview-edge[data-selected="true"] .wire { stroke:Highlight; }
+  .preview-controls button[aria-pressed="true"] { border:3px solid Highlight; }
 }
 </style>
 </head>
@@ -172,29 +204,44 @@ footer div { display:flex; gap:24px; }
       <p class="eyebrow">Incident review, made visible</p>
       <h1 id="hero-title">Follow the evidence.<br><span>See what needs to change.</span></h1>
       <p class="lead">Turn an incident report into a map of control, feedback, and dependencies. Keep the evidence, open questions, and proposed changes together.</p>
-      <div class="actions"><a class="button primary" href="examples/cloudflare.html">Explore the incident map <span aria-hidden="true">↗</span></a><a class="button" href="#start">Map your incident</a></div>
+      <div class="actions"><a class="button primary" href="#preview" id="explore-example">Explore the incident map <span aria-hidden="true">↓</span></a><a class="button" href="#start">Map your incident</a></div>
       <p class="quiet">Open source. One editable HTML file. Works offline.</p>
     </div>
-    <figure class="map-preview">
-      <div class="preview-heading"><strong>Cloudflare</strong><span>02 July 2019 · control-path excerpt</span></div>
+    <figure class="map-preview" id="preview">
+      <div class="preview-heading"><strong>Cloudflare</strong><span>02 July 2019 · select a relationship</span></div>
       <div class="diagram-scroll" tabindex="0" role="region" aria-label="Control-path diagram; scroll horizontally on small screens">
         <svg viewBox="0 0 560 440" role="img" aria-labelledby="diagram-title diagram-description">
           <title id="diagram-title">From WAF release to shared serving resources</title>
-          <desc id="diagram-description">The WAF release team publishes a rule globally. Rule execution consumes CPU shared with HTTP serving. Whether live signals could stop expansion is unknown from the public accounts. The full map also includes incident response.</desc>
+          <desc id="diagram-description">The WAF release team publishes a rule globally. Rule execution consumes CPU shared with HTTP serving. Whether live signals could stop expansion is unknown from the public accounts. Select a line or use the relationship buttons below to read its analysis on this page. This excerpt omits incident response, available in the full map.</desc>
           <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" class="wire-tip"/></marker><marker id="unknown-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" class="unknown-tip"/></marker></defs>
-          <path class="wire" d="M190 108V190" marker-end="url(#arrow)"/>
-          <path class="wire" d="M190 258V340" marker-end="url(#arrow)"/>
-          <path class="unknown-wire" d="M320 224H490V74H320" marker-end="url(#unknown-arrow)"/>
-          <rect class="label-bg" x="70" y="131" width="240" height="30"/><text class="wire-label" x="190" y="152" text-anchor="middle">Publish rule globally</text>
-          <rect class="label-bg" x="60" y="281" width="260" height="30"/><text class="wire-label" x="190" y="302" text-anchor="middle">Execution consumes serving CPU</text>
-          <rect class="label-bg" x="372" y="118" width="172" height="76"/><text class="unknown-label" x="455" y="142" text-anchor="middle"><tspan x="455">Stop expansion</tspan><tspan x="455" dy="22">from live signals?</tspan><tspan x="455" dy="22" font-weight="650">Unknown</tspan></text>
+          <g class="preview-edge" data-from="release" data-to="waf"><path class="wire" d="M190 108V190" marker-end="url(#arrow)"/><path class="edge-hit" d="M190 108V190"/><rect class="label-bg" x="70" y="126" width="240" height="44" rx="6"/><text class="wire-label" x="190" y="152" text-anchor="middle">Publish rule globally</text></g>
+          <g class="preview-edge" data-from="waf" data-to="serving"><path class="wire" d="M190 258V340" marker-end="url(#arrow)"/><path class="edge-hit" d="M190 258V340"/><rect class="label-bg" x="60" y="276" width="260" height="44" rx="6"/><text class="wire-label" x="190" y="302" text-anchor="middle">Execution consumes serving CPU</text></g>
+          <g class="preview-edge" data-from="waf" data-to="release"><path class="unknown-wire" d="M320 224H490V74H320" marker-end="url(#unknown-arrow)"/><path class="edge-hit" d="M320 224H490V74H320"/><rect class="label-bg" x="372" y="118" width="172" height="76" rx="6"/><text class="unknown-label" x="455" y="142" text-anchor="middle"><tspan x="455">Stop expansion</tspan><tspan x="455" dy="22">from live signals?</tspan><tspan x="455" dy="22" font-weight="650">Unknown</tspan></text></g>
           <rect class="node-box" x="60" y="40" width="260" height="68" rx="10"/><text class="node-text" x="190" y="69" text-anchor="middle">WAF release team</text><text class="node-sub" x="190" y="91" text-anchor="middle">Approval · CI · distribution</text>
           <rect class="node-box" x="60" y="190" width="260" height="68" rx="10"/><text class="node-text" x="190" y="219" text-anchor="middle">WAF rule execution</text><text class="node-sub" x="190" y="241" text-anchor="middle">PCRE on the edge</text>
           <rect class="node-box" x="60" y="340" width="260" height="68" rx="10"/><text class="node-text" x="190" y="369" text-anchor="middle">HTTP/HTTPS serving</text><text class="node-sub" x="190" y="391" text-anchor="middle">Shared CPU resources</text>
         </svg>
       </div>
-      <figcaption><div class="legend"><span><i aria-hidden="true"></i>Reported</span><span class="unknown"><i aria-hidden="true"></i>Unknown</span></div>Unknown means the sources do not establish the link. It does not mean the control was absent.</figcaption>
+      <div class="preview-controls" id="preview-controls" role="group" aria-label="Inspect a relationship" hidden>
+        <button type="button" data-from="release" data-to="waf" aria-pressed="false" aria-controls="inline-analysis">1. Global release</button>
+        <button type="button" data-from="waf" data-to="serving" aria-pressed="false" aria-controls="inline-analysis">2. Shared CPU</button>
+        <button type="button" data-from="waf" data-to="release" aria-pressed="false" aria-controls="inline-analysis">3. Stop expansion?</button>
+      </div>
+      <figcaption><div class="legend"><span><i aria-hidden="true"></i>Reported</span><span class="unknown"><i aria-hidden="true"></i>Unknown</span></div>Select a line or a button to read its analysis below. Unknown means the sources do not establish the link, not that the control was absent.<noscript> Enable JavaScript to inspect the relationships here. The analysis summary below is available without it.</noscript></figcaption>
     </figure>
+    <section class="inline-analysis" id="inline-analysis" aria-labelledby="analysis-title" hidden>
+      <div class="analysis-header"><div><span class="status" id="analysis-status" hidden></span><h2 id="analysis-title" tabindex="-1">Relationship analysis</h2><p id="analysis-route"></p></div><button type="button" id="close-analysis">Close analysis</button></div>
+      <p class="analysis-notice" id="analysis-notice" role="status"></p>
+      <button type="button" id="retry-analysis" hidden>Retry loading analysis</button>
+      <div class="analysis-grid" id="analysis-content" hidden>
+        <section><h3>Finding &amp; limits</h3><p id="analysis-finding"></p></section>
+        <section><h3>Evidence</h3><ul id="analysis-evidence"></ul></section>
+        <section><h3>What would change the decision?</h3><p id="analysis-question"></p></section>
+        <section><h3>Proposed change</h3><p id="analysis-proposal"></p></section>
+        <section><h3>Observable check</h3><p id="analysis-check"></p></section>
+      </div>
+      <p class="analysis-help">“Reported” means stated by a source, not independently verified. Proposals are not historical facts. <a href="examples/cloudflare.html">Open the full map</a> to explore incident response, edit relationships, or save your own HTML copy.</p>
+    </section>
   </section>
   <div class="principles wrap">
     <div><h2>Evidence stays attached</h2><p>Follow each relationship to its source and the passage that supports it.</p></div>
@@ -248,6 +295,107 @@ if (navigator.clipboard && window.isSecureContext) {
     }
   });
 }
+
+// Read the existing standalone example as inert data; its scripts never run here.
+const analysis = document.getElementById('inline-analysis');
+const analysisTitle = document.getElementById('analysis-title');
+const analysisNotice = document.getElementById('analysis-notice');
+const analysisContent = document.getElementById('analysis-content');
+const analysisStatus = document.getElementById('analysis-status');
+const retryAnalysis = document.getElementById('retry-analysis');
+const relationshipButtons = [...document.querySelectorAll('#preview-controls button')];
+const previewEdges = [...document.querySelectorAll('.preview-edge')];
+let incidentPromise, currentSelection, selectionVersion = 0;
+function loadIncident() {
+  if (!incidentPromise) {
+    incidentPromise = (async () => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 10000);
+      try {
+        const response = await fetch('examples/cloudflare.html', {signal:controller.signal});
+        if (!response.ok) throw new Error('Example unavailable');
+        const source = new DOMParser().parseFromString(await response.text(), 'text/html');
+        const data = JSON.parse(source.getElementById('incident-data').textContent);
+        if (!Array.isArray(data.nodes) || !Array.isArray(data.relationships)) throw new Error('Invalid example');
+        return data;
+      } finally { clearTimeout(timeout); }
+    })().catch(error => { incidentPromise = undefined; throw error; });
+  }
+  return incidentPromise;
+}
+function updateSelection(from, to) {
+  for (const element of [...relationshipButtons, ...previewEdges]) {
+    const selected = element.dataset.from === from && element.dataset.to === to;
+    if (element.tagName === 'BUTTON') element.setAttribute('aria-pressed', String(selected));
+    else element.dataset.selected = String(selected);
+  }
+}
+async function inspectRelationship(from, to, focus = true) {
+  currentSelection = {from, to};
+  const version = ++selectionVersion;
+  updateSelection(from, to);
+  analysis.hidden = false;
+  analysisContent.hidden = true;
+  analysisStatus.hidden = true;
+  retryAnalysis.hidden = true;
+  analysisTitle.textContent = 'Relationship analysis';
+  document.getElementById('analysis-route').textContent = '';
+  analysisNotice.textContent = 'Loading the Cloudflare analysis…';
+  if (focus) {
+    analysisTitle.focus({preventScroll:true});
+    analysis.scrollIntoView({block:'start'});
+  }
+  try {
+    const data = await loadIncident();
+    if (version !== selectionVersion) return;
+    const relationship = data.relationships.find(item => item.from === from && item.to === to);
+    const nodes = new Map(data.nodes.map(node => [node.id, node]));
+    const names = {reported:'Reported', inferred:'Inferred', hypothesis:'Hypothesis', unknown:'Unknown', proposed:'Proposed'};
+    if (!relationship || !nodes.has(from) || !nodes.has(to) || !names[relationship.status]) throw new Error('Relationship unavailable');
+    analysisTitle.textContent = relationship.label.replaceAll('\n', ' ');
+    analysisStatus.textContent = names[relationship.status];
+    analysisStatus.classList.toggle('unknown', relationship.status === 'unknown');
+    analysisStatus.hidden = false;
+    document.getElementById('analysis-route').textContent = `${nodes.get(from).label.replaceAll('\n', ' ')} → ${nodes.get(to).label.replaceAll('\n', ' ')}`;
+    for (const field of ['finding','question','proposal','check']) document.getElementById('analysis-'+field).textContent = relationship[field] || 'Not established in this analysis.';
+    const evidence = document.getElementById('analysis-evidence');
+    evidence.replaceChildren();
+    for (const source of relationship.evidence || []) {
+      let url;
+      try { const parsed = new URL(source.url); if (['http:','https:'].includes(parsed.protocol)) url = parsed.href; } catch (_) { /* Keep local evidence as text. */ }
+      const item = document.createElement('li');
+      const name = document.createElement(url ? 'a' : 'span');
+      name.textContent = source.label || source.url || 'Source';
+      if (url) { name.href = url; name.target = '_blank'; name.rel = 'noopener noreferrer'; }
+      const locator = document.createElement('small');
+      locator.textContent = source.locator || '';
+      item.append(name, locator); evidence.append(item);
+    }
+    if (!evidence.children.length) {
+      const item = document.createElement('li'); item.textContent = 'No supporting source supplied.'; evidence.append(item);
+    }
+    analysisContent.hidden = false;
+    analysisNotice.textContent = '';
+  } catch (_) {
+    if (version !== selectionVersion) return;
+    analysisNotice.textContent = 'Could not load this analysis. Retry, or read the summary below. The full map is also available through the link below.';
+    retryAnalysis.hidden = false;
+  }
+}
+document.getElementById('preview-controls').hidden = false;
+for (const element of [...relationshipButtons, ...previewEdges]) {
+  element.addEventListener('click', () => inspectRelationship(element.dataset.from, element.dataset.to));
+}
+document.getElementById('explore-example').addEventListener('click', event => {
+  event.preventDefault(); inspectRelationship('release', 'waf');
+});
+retryAnalysis.addEventListener('click', () => inspectRelationship(currentSelection.from, currentSelection.to));
+document.getElementById('close-analysis').addEventListener('click', () => {
+  ++selectionVersion;
+  analysis.hidden = true;
+  updateSelection(null, null);
+  relationshipButtons.find(button => button.dataset.from === currentSelection.from && button.dataset.to === currentSelection.to).focus();
+});
 </script>
 </body>
 </html>

@@ -54,7 +54,10 @@ relationship content; it does not add nodes or rearrange the graph.
 maps release control, resource contention, incident feedback, and emergency
 response. Open the live map, or download [its HTML file](examples/cloudflare.html)
 for offline use. The [project site](https://helixthinker.github.io/sre-cast/#example)
-introduces the analysis and its concrete proposals.
+introduces the analysis and its concrete proposals. Select a line in the homepage
+diagram, or use its relationship buttons, to read the finding, sources, open
+question, proposal, and observable check directly below it. The homepage loads
+this content from the existing example; it does not maintain a second analysis.
 
 ## Themes and readability
 
