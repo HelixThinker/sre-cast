@@ -61,11 +61,19 @@ The project applies these principles to incident reviews:
 - Keep proposed improvements distinct from actions already agreed by a team.
 - State the scope and limits of each review, including missing internal context.
 
+## First worked review
+
+[Cloudflare WAF outage — July 2, 2019](examples/cloudflare-2019-07-02/README.md)
+is the first published example. It includes the evidence boundary, a control
+model, prioritized questions, and improvement proposals. The
+[source notes](examples/cloudflare-2019-07-02/sources.md) link to the relevant
+passages and explain the choice of incident.
+
 ## Plan for v0.1
 
 | Order | Deliverable | Issue |
 | --- | --- | --- |
-| 1 | Publish a useful review of one real public incident with detailed source material. | [#9 — First worked review](https://github.com/HelixThinker/sre-cast/issues/9) |
+| 1 — done | [Cloudflare worked review](examples/cloudflare-2019-07-02/README.md) with sources, questions, and improvement discussion. | [#9 — First worked review](https://github.com/HelixThinker/sre-cast/issues/9) |
 | 2 | Turn that workflow into one usable skill with a short installation and usage guide. | [#6 — Review skill and quickstart](https://github.com/HelixThinker/sre-cast/issues/6) |
 | 3 | Publish a second review showing useful questions and explicit limits when evidence is incomplete. | [#10 — Incomplete-evidence example](https://github.com/HelixThinker/sre-cast/issues/10) |
 
@@ -91,8 +99,8 @@ skills, integrations, and a public website can follow practical use.
 
 ## Current status
 
-The postmortem-review direction and the three tasks above are the current plan.
-The usable review skill and worked examples are still to be built.
+The first worked review is published. The next step is the usable review skill
+and quickstart in #6, followed by the incomplete-evidence example in #10.
 
 An earlier `mock-cast-foundation` prototype is available in
 [PR #8](https://github.com/HelixThinker/sre-cast/pull/8). It provides reusable

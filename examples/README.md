@@ -1,42 +1,23 @@
-# Worked Examples
+# Worked reviews
 
-This directory contains public worked examples of CAST applied to SRE incidents.
-Examples are canonical analysis artifacts, not copies of website content.
+Each example contains a readable review and links to the public evidence it
+uses. Findings distinguish the operator's account, our interpretation, unanswered
+questions, and proposed improvements.
 
-## Example structure
+## Available
 
-```text
-examples/
-└── <incident-id>/
-    ├── README.md
-    ├── evidence/
-    │   └── evidence-index.md
-    ├── questions.md
-    ├── analysis/
-    │   ├── 01-foundation/
-    │   ├── 02-control-structure/
-    │   ├── 03-controller-analysis/
-    │   ├── 04-systemic-factors/
-    │   └── 05-improvement/
-    ├── assets/
-    └── report.md
-```
+- [Cloudflare WAF outage — July 2, 2019](cloudflare-2019-07-02/README.md):
+  the first worked postmortem review, covering rule admission, runtime
+  containment, deployment exposure, and emergency intervention.
+  [Source notes](cloudflare-2019-07-02/sources.md) include passage locations and
+  the rationale for selecting this case.
 
-The internal structure follows the five parts summarized in the
-[CAST Handbook, pp. 34-35](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf#page=34):
-foundational
-information, the safety control structure, individual controller analysis,
-system-wide flaws, and an improvement program.
+## Next
 
-Each example should:
+Use the first review to develop the skill in
+[#6](https://github.com/HelixThinker/sre-cast/issues/6). A second example focused
+on incomplete evidence is tracked in
+[#10](https://github.com/HelixThinker/sre-cast/issues/10).
 
-- distinguish evidence, interpretation, hypothesis, and unknown information;
-- preserve unanswered questions;
-- link claims to public evidence;
-- link method decisions to a book and page;
-- avoid blame and single-root-cause explanations;
-- trace each recommendation to a control-structure weakness;
-- record ownership, implementation status, and effectiveness feedback.
-
-The final requirement follows the continual-improvement guidance in the
-[CAST Handbook, pp. 90-91](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf#page=90).
+The example format can evolve through use. Keep sources close to conclusions
+and retain the questions that available evidence cannot answer.
