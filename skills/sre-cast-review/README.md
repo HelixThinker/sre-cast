@@ -1,9 +1,17 @@
 # Use SRE CAST Review
 
 Give the skill a postmortem and the evidence available to you. It returns a
-review of supported conclusions, control and feedback gaps, prioritized
-questions, and improvement proposals. It works with partial reports and can
-continue when new answers arrive.
+review with a control-and-feedback diagram, concrete findings, prioritized
+questions, and specific improvement proposals. It works with partial reports
+and can continue when new answers arrive.
+
+Every review includes the diagram, findings, and proposals, including brief
+reviews and updates. Solid links have source support; dashed links explicitly
+say `Unknown:`, `Hypothesis:`, or `Proposed:`. The legend and source notes explain
+what is established and which questions would resolve uncertain links.
+With limited evidence, proposals can be targeted requests for evidence needed
+to choose a change. The assistant also shows the diagram and key results in
+its response when it saves the full review to a file.
 
 The skill uses the language you request. No scripts, API keys, or additional
 runtime dependencies are required by the package. Reading a URL requires the
@@ -61,8 +69,8 @@ and connect improvement proposals to the evidence. Do not assume that announced
 follow-up work was completed or effective.
 ```
 
-You should receive a review with source passages, control relationships,
-unanswered questions, and proposals identified as suggestions. For this case,
+You should receive a control-and-feedback diagram, concrete findings with source
+passages, unanswered questions, and specific proposals. For this case,
 a useful interpretation is that admission evidence, production exposure, and
 emergency intervention need to be considered together. For example:
 
@@ -105,9 +113,11 @@ https://blog.cloudflare.com/october-2021-facebook-outage/
 Focus on command admission, reachability, and authorized recovery. Distinguish
 the operator's claims from independently observed external symptoms; a source
 repeating another source's explanation is not independent corroboration.
-Make decision-changing questions the main result. Keep missing command details,
-dependencies, owners, and effectiveness evidence unknown. Relate proposals to
-the evidence needed to choose them, and explain how to continue the review.
+Include the control-and-feedback diagram, concrete findings, and conditional
+proposals. Mark unknown links explicitly and prioritize questions that resolve
+them. Keep missing command details, dependencies, owners, and effectiveness
+evidence unknown. Relate proposals to the evidence needed to choose them,
+and explain how to continue the review.
 ```
 
 A useful result can leave the implementation choice unresolved. For example,
@@ -154,7 +164,7 @@ The incident commander recalls that the rollback alert arrived only after
 full rollout. The deployment event times have not yet been retrieved.
 
 Treat this as an attributed recollection, not independent confirmation.
-Update the affected findings and proposals, show which questions are now
+Update the diagram, findings, and proposals, show which questions are now
 partly answered, and identify what evidence would resolve the remaining gap.
 ```
 
@@ -167,7 +177,8 @@ contact participants, assign owners, or change production.
 
 - [SKILL.md](SKILL.md): invocation scope and review workflow.
 - [Review guide](references/review-guide.md): focused CAST method notes.
-- [Output template](assets/review-template.md): optional writing scaffold.
+- [Output template](assets/review-template.md): adaptable layout for the required
+  diagram, findings, and proposals.
 - [Codex metadata](agents/openai.yaml): display name and starter prompt.
 
 The package is self-contained. The published Cloudflare and Facebook examples
