@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Incident map</title>
+<style>
+:root{color-scheme:light;--ink:#263d3c;--muted:#5d706c;--paper:#f6f5f0;--line:#d8dfd7;--accent:#12685c;--unknown:#a45b15}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,sans-serif}
+main{max-width:1480px;margin:auto;padding:36px 28px}h1{font-size:clamp(26px,3vw,40px);line-height:1.2;margin:6px 0 14px;letter-spacing:-.035em}
+h2{font-size:21px;line-height:1.3;margin:12px 0}h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin:22px 0 6px;color:var(--muted)}
+p{margin:0 0 12px}.eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
+#scope{max-width:1000px;color:var(--muted);font-size:14px}#impact{max-width:1000px}.next{border-left:3px solid var(--accent);padding:10px 16px;background:#e9efe8;margin:20px 0 28px;max-width:1100px}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}.map-card,aside{background:#fffefa;border:1px solid var(--line);border-radius:16px;overflow:hidden}
+.map-head{padding:20px 22px 0}.map-head p{font-size:13px;color:var(--muted)}.viewport{overflow:auto;padding:10px}svg{display:block;width:100%;min-width:700px;height:auto}
+.legend{display:flex;gap:9px;flex-wrap:wrap;padding:0 22px 20px}.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.035em;border:1px solid var(--line);border-radius:20px;padding:3px 9px;color:var(--muted);background:#f6f7f1}
+.badge[data-status=unknown],.badge[data-status=hypothesis]{color:var(--unknown);background:#fff5e5;border-color:#efd7b6}.badge[data-status=proposed]{color:#175cb0;background:#eef4ff}.badge[data-status=inferred]{color:#695094;background:#f6f0ff}
+aside{padding:24px;overflow-wrap:anywhere}.route{font-size:13px;color:var(--muted)}#details p{white-space:pre-line;font-size:14px}#evidence{list-style:none;padding:0;margin:0}#evidence li{margin:10px 0;font-size:13px}#evidence small{display:block;color:var(--muted)}
+a{color:var(--accent);text-underline-offset:3px}button{font:inherit;cursor:pointer}.relationships{display:flex;flex-wrap:wrap;gap:8px;padding:16px 22px;border-top:1px solid var(--line)}
+.relationships button{background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 12px;text-align:left;color:var(--ink);font-size:13px}.relationships button[aria-pressed=true]{background:var(--accent);color:white;border-color:var(--accent)}
+button:focus-visible,a:focus-visible{outline:3px solid #e7ab42;outline-offset:3px}.node rect{fill:#edf2eb;stroke:#bccdc1}.node text{font-size:16px;font-weight:600;fill:var(--ink)}
+.edge{cursor:pointer}.wire{fill:none;stroke:#647c74;stroke-width:2.3;stroke-linejoin:round}.hit{fill:none;stroke:transparent;stroke-width:20}.edge[data-status]:not([data-status=reported]) .wire{stroke-dasharray:7 5}
+.edge[data-status=unknown] .wire,.edge[data-status=hypothesis] .wire{stroke:var(--unknown)}.edge[data-status=proposed] .wire{stroke:#3472b6}.edge[data-status=inferred] .wire{stroke:#8564aa}
+.edge rect{fill:#fffefa;stroke:var(--line)}.edge text{font-size:14px;fill:var(--ink)}.edge .edge-status{font-size:11px;font-weight:600;fill:var(--muted)}.edge[data-selected=true] rect{stroke:var(--accent);stroke-width:2}.edge[data-selected=true] .wire{stroke-width:4}
+footer{font-size:12px;color:var(--muted);margin:18px 0}#message{padding:22px}#message:empty{display:none}[hidden]{display:none!important}
+@media(max-width:1050px){.layout{grid-template-columns:1fr}aside{max-width:none}.viewport svg{min-width:700px}}@media(max-width:600px){main{padding:24px 12px}.map-head{padding:16px 16px 0}aside{padding:20px}}
+</style>
+</head>
+<body>
+<main>
+<header><div class="eyebrow">SRE CAST · Incident map</div><h1 id="title">Incident map</h1><p id="scope"></p><p id="impact"></p><div class="next" id="next"></div></header>
+<div class="layout">
+<section class="map-card" aria-label="Control map">
+<div class="map-head"><strong>Controls &amp; feedback</strong><p>Select an arrow or a relationship button. Dashed lines need their status read with them.</p></div>
+<div id="message" role="status"></div>
+<div class="viewport"><svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Incident control relationships; use the buttons below to inspect each relationship."></svg></div>
+<div class="legend" id="legend" aria-label="Evidence statuses"></div>
+<nav class="relationships" id="relationships" aria-label="Inspect relationships"></nav>
+</section>
+<aside id="details" aria-live="polite" hidden>
+<span class="badge" id="status"></span><h2 id="relationship"></h2><p class="route" id="route"></p>
+<section id="finding-section"><h3>Finding &amp; limits</h3><p id="finding"></p></section>
+<section id="evidence-section"><h3>Evidence</h3><ul id="evidence"></ul></section>
+<section id="question-section"><h3>What would change the decision?</h3><p id="question"></p></section>
+<section id="proposal-section"><h3>Proposed change</h3><p id="proposal"></p></section>
+<section id="check-section"><h3>Observable check</h3><p id="check"></p></section>
+</aside>
+</div>
+<footer>“Reported” means stated by a source, not independently verified. Proposals are not historical facts. This file supports inspection; ask the agent to update it with new evidence.</footer>
+</main>
+<script id="incident-data" type="application/json">
+{"title":"Incident map","scope":"No incident loaded.","impact":"","next":"Add incident evidence using the incident-map skill.","width":1040,"height":700,"nodes":[],"relationships":[]}
+</script>
+<!-- Data example (illustrative only; replace the JSON above, not this comment):
+{
+  "title": "Incident title", "scope": "Boundary and evidence cutoff",
+  "impact": "Affected capability and recovery", "next": "Next useful decision",
+  "width": 1040, "height": 700,
+  "nodes": [
+    {"id":"controller","label":"Controller","x":350,"y":90},
+    {"id":"process","label":"Controlled process","x":350,"y":360}
+  ],
+  "relationships": [{
+    "from":"controller","to":"process","label":"Issue command",
+    "status":"unknown","labelAt":[350,225],"via":[],
+    "finding":"What is established and what is interpretation",
+    "question":"Missing evidence and how it changes the decision",
+    "proposal":"Behavior to change and its tradeoff",
+    "check":"Observable result and prerequisites",
+    "evidence":[{"label":"Source name","url":"https://example.com/report","locator":"Section or timestamp"}]
+  }]
+}
+-->
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+const statuses = new Map([['reported','Reported'],['inferred','Inferred'],['hypothesis','Hypothesis'],['unknown','Unknown'],['proposed','Proposed']]);
+const ns = 'http://www.w3.org/2000/svg';
+const svgElement = (tag, attrs, parent) => {
+  const el = document.createElementNS(ns, tag);
+  for (const [key,value] of Object.entries(attrs)) el.setAttribute(key, value);
+  parent.append(el); return el;
+};
+function lines(parent, label, x, y, className='') {
+  const parts = String(label).split('\n');
+  const text = svgElement('text', {x, y, 'text-anchor':'middle', class:className}, parent);
+  parts.forEach((part,i) => {
+    const span = svgElement('tspan', {x, y:y+(i-(parts.length-1)/2)*20}, text);
+    span.textContent = part;
+  });
+}
+function border(node, toward) {
+  const dx=toward[0]-node.x, dy=toward[1]-node.y;
+  const scale=1/Math.max(Math.abs(dx)/110,Math.abs(dy)/43);
+  if (!Number.isFinite(scale)) throw new Error('Route points must differ from node centers.');
+  return [node.x+dx*scale,node.y+dy*scale];
+}
+function safeURL(value) {
+  try { const url = new URL(value); return ['http:','https:'].includes(url.protocol) ? url.href : null; }
+  catch { return null; }
+}
+try {
+  const data=JSON.parse($('incident-data').textContent);
+  const point = p => Array.isArray(p) && p.length===2 && p.every(Number.isFinite);
+  if (!Number.isFinite(data.width) || !Number.isFinite(data.height) || data.width<=0 || data.height<=0 || !Array.isArray(data.nodes) || !Array.isArray(data.relationships)) throw new Error('Invalid canvas or relationship data.');
+  const nodes=new Map();
+  for (const n of data.nodes) {
+    if (typeof n.id!=='string' || nodes.has(n.id) || !point([n.x,n.y]) || typeof n.label!=='string') throw new Error('Nodes need unique IDs, labels, and numeric positions.');
+    nodes.set(n.id,n);
+  }
+  for (const r of data.relationships) {
+    if (!nodes.has(r.from) || !nodes.has(r.to) || r.from===r.to || !statuses.has(r.status) || typeof r.label!=='string' || !point(r.labelAt) || (r.via && (!Array.isArray(r.via) || !r.via.every(point)))) throw new Error('Invalid relationship endpoint, status, label, or route.');
+    if (r.evidence && !Array.isArray(r.evidence)) throw new Error('Evidence must be a list.');
+  }
+  for (const field of ['title','scope','impact','next']) { $(field).textContent=data[field] || ''; $(field).hidden=!data[field]; }
+  document.title=data.title || 'Incident map';
+  const svg=$('map'); svg.setAttribute('viewBox',`0 0 ${data.width} ${data.height}`);
+  const defs=svgElement('defs',{},svg);
+  const marker=svgElement('marker',{id:'arrow',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto-start-reverse'},defs);
+  svgElement('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:'#647c74'},marker);
+  const edgeLayer=svgElement('g',{},svg), nodeLayer=svgElement('g',{},svg), labelLayer=svgElement('g',{},svg);
+  const groups=[], labels=[], buttons=[];
+  function select(index) {
+    const r=data.relationships[index];
+    groups.forEach((g,i)=>g.dataset.selected=String(i===index));
+    labels.forEach((g,i)=>g.dataset.selected=String(i===index));
+    buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
+    $('details').hidden=false;
+    $('status').textContent=statuses.get(r.status); $('status').dataset.status=r.status;
+    $('relationship').textContent=r.label.replaceAll('\n',' ');
+    $('route').textContent=`${nodes.get(r.from).label.replaceAll('\n',' ')} → ${nodes.get(r.to).label.replaceAll('\n',' ')}`;
+    for (const field of ['finding','question','proposal','check']) { $(field).textContent=r[field] || ''; $(field+'-section').hidden=!r[field]; }
+    $('evidence').replaceChildren();
+    for (const e of r.evidence || []) {
+      const li=document.createElement('li'), url=safeURL(e.url);
+      const name=document.createElement(url ? 'a' : 'span'); name.textContent=e.label || e.url || 'Source';
+      if (url) {name.href=url;name.target='_blank';name.rel='noopener noreferrer';}
+      const locator=document.createElement('small'); locator.textContent=e.locator || '';
+      li.append(name,locator); $('evidence').append(li);
+    }
+    if (!(r.evidence || []).length) {const li=document.createElement('li');li.textContent='No supporting source supplied for this relationship.';$('evidence').append(li);}
+  }
+  data.relationships.forEach((r,i)=>{
+    const from=nodes.get(r.from),to=nodes.get(r.to),via=r.via || [];
+    const start=border(from,via[0] || [to.x,to.y]),end=border(to,via[via.length-1] || [from.x,from.y]);
+    const points=[start,...via,end].map(p=>p.join(',')).join(' ');
+    const group=svgElement('g',{class:'edge','data-status':r.status},edgeLayer);
+    svgElement('polyline',{points,class:'wire','marker-end':'url(#arrow)'},group);
+    svgElement('polyline',{points,class:'hit'},group);
+    group.addEventListener('click',()=>select(i)); groups.push(group);
+    const label=svgElement('g',{class:'edge','data-status':r.status},labelLayer);
+    const [x,y]=r.labelAt, parts=r.label.split('\n'),width=Math.max(150,...parts.map(t=>t.length*8+26)),height=parts.length*20+28;
+    svgElement('rect',{x:x-width/2,y:y-height/2,width,height,rx:8},label);
+    lines(label,r.label,x,y-6); lines(label,`${i+1} · ${statuses.get(r.status)}`,x,y+height/2-9,'edge-status');
+    label.addEventListener('click',()=>select(i)); labels.push(label);
+    const button=document.createElement('button');button.type='button';button.textContent=`${i+1}. ${r.label.replaceAll('\n',' ')}`;
+    button.addEventListener('click',()=>select(i));$('relationships').append(button);buttons.push(button);
+  });
+  for (const n of nodes.values()) {
+    const group=svgElement('g',{class:'node'},nodeLayer);
+    svgElement('rect',{x:n.x-110,y:n.y-43,width:220,height:86,rx:12},group);
+    lines(group,n.label,n.x,n.y+5);
+  }
+  for (const status of new Set(data.relationships.map(r=>r.status))) {
+    const badge=document.createElement('span');badge.className='badge';badge.dataset.status=status;
+    badge.textContent=`${status==='reported' ? '―' : '┄'} ${statuses.get(status)}`;$('legend').append(badge);
+  }
+  if (data.relationships.length) select(0);
+  else {$('message').textContent='No relationships yet. Fill the incident-data block using the incident-map skill.';svg.setAttribute('hidden','');}
+} catch(error) {
+  $('message').textContent=`Could not render this map: ${error.message}`;
+  $('map').replaceChildren();$('map').setAttribute('hidden','');$('relationships').replaceChildren();$('details').hidden=true;
+}
+</script>
+</body>
+</html>

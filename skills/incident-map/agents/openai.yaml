@@ -1,0 +1,4 @@
+interface:
+  display_name: "Incident Map"
+  short_description: "Explore incident controls, evidence, and unknowns"
+  default_prompt: "Use $incident-map to create or update an interactive incident map from this evidence, with explicit unknowns and concrete proposals."

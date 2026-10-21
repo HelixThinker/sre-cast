@@ -1,142 +1,46 @@
 # SRE CAST
 
-SRE CAST is an open project for AI-assisted review of SRE postmortems using
-CAST (Causal Analysis based on System Theory).
+Incident review rules and a skill that turns evidence into an interactive map.
 
-It helps an engineer examine an incident explanation, find gaps in the evidence,
-understand decisions and feedback, and prepare useful questions and improvements.
+The rules explain what matters in a review. The skill makes a usable artifact:
+select a relationship to inspect its evidence, uncertainty, finding, and proposed
+change. Its value is keeping these together as the incident becomes clearer.
+We do not claim that a skill makes the model a better incident analyst.
 
-## First product
+## Use
 
-The first product is the [sre-cast-review skill](skills/sre-cast-review/SKILL.md)
-for engineers preparing or reviewing a postmortem.
+Read [the review rules](skills/incident-map/rules.md) on their own, or give an
+agent [the incident-map skill](skills/incident-map/SKILL.md) and incident material:
 
-Give it an incident report and the available supporting material. The
-result is a concise review containing:
+> Use skills/incident-map/SKILL.md to map this incident: [report URL or file].
+> Save the interactive map as incident.html. Mark unknown relationships and
+> show which evidence would change the next decision.
 
-- **Concrete findings and gaps:** what the sources establish, what each finding
-  changes for a decision, and what remains uncertain.
-- **Control-and-feedback diagram:** controllers, actions, and signals, with
-  unknown, hypothetical, and proposed links explicitly labeled.
-- **Prioritized questions:** what to ask incident participants next and why each
-  answer matters.
-- **Specific proposals:** the finding each action addresses, its prerequisites,
-  and how its intended effect could be observed.
+The whole `skills/incident-map/` folder is the skill package. Its template and
+rules travel with it. The output is one HTML file: open it in a browser, select
+an arrow or relationship button, and follow the evidence links. No build,
+server, account, or internet connection is needed to use the map; opening its
+external sources needs internet. This is a local HTML artifact, not a native
+Canvas integration.
 
-Every review includes the diagram, findings, and proposals. With incomplete
-evidence, it uses explicit unknowns, bounded conclusions, and concrete steps to
-obtain the evidence needed for a decision. The review can continue as new
-evidence arrives.
+To continue an existing map:
 
-## Get started
+> Use the incident-map skill to update incident.html with this new evidence:
+> [material]. Revise the affected relationship, finding, and proposal. Preserve
+> the remaining unknowns and show me what changed.
 
-Follow the [installation and usage guide](skills/sre-cast-review/README.md) to
-install the skill in Codex. Then invoke it with your incident material:
+The agent updates the saved file. Editing and saving directly in the map is the
+next step; the current UI supports inspection only.
 
-```text
-$sre-cast-review
-Review this postmortem using the attached timeline and deployment notes.
-Identify supported conclusions and gaps, prioritize questions that would change
-our decisions, and explain how the action items address the findings.
-```
+## Example and next step
 
-The guide includes Cloudflare and Facebook examples, local-file inputs, and
-continuing a review with new answers. The package includes its CAST notes and
-an adaptable output template; no additional runtime dependencies are required.
+[Cloudflare, July 2, 2019](examples/cloudflare.html) maps release control,
+resource contention, incident feedback, and emergency response. Download/open
+the HTML file to interact with it; GitHub displays its source.
 
-## Example of the intended interaction
+The next task is to **edit one relationship and save the updated map**, preserving
+its evidence and uncertainty. See [#15](https://github.com/HelixThinker/sre-cast/issues/15).
 
-An incident report says:
-
-> An incorrect configuration caused the outage. We will add configuration review.
-
-A useful review asks:
-
-- What limited the scope of the configuration rollout?
-- Which signals determined whether the rollout should continue?
-- What information was available to the engineer at the time?
-- How would the proposed review detect this particular class of problem?
-
-These are illustrative questions. Answers must come from the incident material
-or its participants.
-
-## How the analysis works
-
-CAST examines why the control structure did not prevent a loss and helps identify
-which questions still need answers. Its analysis areas can be revisited as more
-is learned. See the [CAST Handbook](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf),
-printed pages 31–35.
-
-The project applies these principles to incident reviews:
-
-- Link important factual claims to specific supporting source passages.
-- Distinguish what a source reports from what has been independently confirmed.
-- Keep facts, interpretations, hypotheses, contradictions, and unknowns visible.
-- Explain decisions in their context using blameless language.
-- Relate improvement proposals to the evidence and the analyzed control
-  weaknesses.
-- Keep proposed improvements distinct from actions already agreed by a team.
-- State the scope and limits of each review, including missing internal context.
-
-## Worked reviews
-
-[Cloudflare WAF outage — July 2, 2019](examples/cloudflare-2019-07-02/README.md)
-is the first published example. It includes the evidence boundary, a control
-model, prioritized questions, and improvement proposals. The
-[source notes](examples/cloudflare-2019-07-02/sources.md) link to the relevant
-passages and explain the choice of incident.
-
-[Facebook backbone outage — October 4, 2021](examples/facebook-2021-10-04/README.md)
-shows how to review incomplete evidence. It separates the operator's explanation
-from external observations, prioritizes questions that change the choice of
-improvements, and shows how to continue when new evidence arrives. Its
-[source notes](examples/facebook-2021-10-04/sources.md) identify the three public
-accounts and the limits of their support.
-
-## Plan for v0.1
-
-| Order | Deliverable | Issue |
-| --- | --- | --- |
-| 1 — done | [Cloudflare worked review](examples/cloudflare-2019-07-02/README.md) with sources, questions, and improvement discussion. | [#9 — First worked review](https://github.com/HelixThinker/sre-cast/issues/9) |
-| 2 — done | [Usable review skill and quickstart](skills/sre-cast-review/README.md), based on the first worked review. | [#6 — Review skill and quickstart](https://github.com/HelixThinker/sre-cast/issues/6) |
-| 3 — done | [Facebook worked review](examples/facebook-2021-10-04/README.md) with incomplete evidence, prioritized questions, and conditional proposals. | [#10 — Incomplete-evidence example](https://github.com/HelixThinker/sre-cast/issues/10) |
-
-The v0.1 deliverables are the skill, its quickstart, and two worked reviews.
-
-## Development approach
-
-Development is kept lightweight while the project is built by its maintainer
-with AI assistance. Work directly on the examples and skill, and improve them
-through use.
-
-The active plan has no standalone infrastructure workstream: source registries,
-formal artifact or portability contracts, validators, CI, eval frameworks,
-model benchmarks, and separate re-review or approval stages are outside v0.1.
-
-Use ordinary Markdown, direct source links, and only the structure needed by the
-current example. Add tooling when a concrete recurring need appears.
-
-The locations are `skills/sre-cast-review/` for the skill and
-`examples/` for worked reviews. Bundle the method references and output
-resources that the skill actually uses. Broader template libraries, additional
-skills, integrations, and a public website can follow practical use.
-
-## Current status
-
-The v0.1 scope is complete: a usable review skill, its installation and usage
-guide, and two worked reviews. Improve them through use on further incidents.
-
-The earlier `mock-cast-foundation` prototype is retained in the history of
-[closed PR #8](https://github.com/HelixThinker/sre-cast/pull/8). Use
-`sre-cast-review` for the current workflow. Earlier standalone infrastructure
-tasks have been closed as not planned.
-
-## Method sources
-
-- [CAST Handbook](https://psas.scripts.mit.edu/home/get_file4.php?name=CAST_Handbook.pdf)
-  — the primary reference for incident analysis.
-- [MIT PSASS Books and Handbooks](https://psas.scripts.mit.edu/home/books-and-handbooks/)
-  — official method publications.
-
-Method references identify the relevant printed handbook pages. Cite incident
-evidence alongside the analysis it supports.
+The repository contains one rules file, one skill, one HTML template, and one
+worked map. Earlier prose reviews and guides remain in Git history. Local books
+in `sources/` remain ignored.
