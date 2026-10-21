@@ -1,0 +1,4 @@
+interface:
+  display_name: "SRE CAST Review"
+  short_description: "Review postmortems, evidence, and control gaps"
+  default_prompt: "Use $sre-cast-review to review this postmortem, identify evidence gaps, prioritize questions, and connect improvement proposals to the analysis."

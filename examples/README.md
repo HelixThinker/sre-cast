@@ -14,9 +14,8 @@ questions, and proposed improvements.
 
 ## Next
 
-Use the first review to develop the skill in
-[#6](https://github.com/HelixThinker/sre-cast/issues/6). A second example focused
-on incomplete evidence is tracked in
+Use the [review skill and quickstart](../skills/sre-cast-review/README.md) for
+your own incident. A second example focused on incomplete evidence is tracked in
 [#10](https://github.com/HelixThinker/sre-cast/issues/10).
 
 The example format can evolve through use. Keep sources close to conclusions
