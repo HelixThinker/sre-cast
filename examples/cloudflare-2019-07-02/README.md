@@ -232,10 +232,9 @@ Do not convert a participant's recollection into independent corroboration.
 If an answer conflicts with a published account, keep both versions and state
 what would resolve the difference.
 
-The first skill in [#6](https://github.com/HelixThinker/sre-cast/issues/6) can
-reuse this sequence: establish the evidence boundary, describe control
-relationships, expose decision-changing gaps, and connect proposals to
-observable outcomes.
+The [review skill and quickstart](../../skills/sre-cast-review/README.md) use
+this sequence: establish the evidence boundary, describe control relationships,
+expose decision-changing gaps, and connect proposals to observable outcomes.
 
 ## Method note
 

@@ -8,10 +8,10 @@ understand decisions and feedback, and prepare useful questions and improvements
 
 ## First product
 
-The first product is one skill, `sre-cast-review`, for engineers preparing or
-reviewing a postmortem.
+The first product is the [sre-cast-review skill](skills/sre-cast-review/SKILL.md)
+for engineers preparing or reviewing a postmortem.
 
-Give it an incident report and the available supporting material. The intended
+Give it an incident report and the available supporting material. The
 result is a concise review containing:
 
 - **Supported conclusions and gaps:** what the sources establish, what is an
@@ -26,6 +26,22 @@ result is a concise review containing:
 When the evidence is incomplete, a useful result is a clear set of next questions
 and explicit limits on the conclusions. The review can continue as new evidence
 arrives.
+
+## Get started
+
+Follow the [installation and usage guide](skills/sre-cast-review/README.md) to
+install the skill in Codex. Then invoke it with your incident material:
+
+```text
+$sre-cast-review
+Review this postmortem using the attached timeline and deployment notes.
+Identify supported conclusions and gaps, prioritize questions that would change
+our decisions, and explain how the action items address the findings.
+```
+
+The guide includes a public Cloudflare example, local-file inputs, and continuing
+a review with new answers. The package includes its CAST notes and an adaptable
+output template; no additional runtime dependencies are required.
 
 ## Example of the intended interaction
 
@@ -74,7 +90,7 @@ passages and explain the choice of incident.
 | Order | Deliverable | Issue |
 | --- | --- | --- |
 | 1 — done | [Cloudflare worked review](examples/cloudflare-2019-07-02/README.md) with sources, questions, and improvement discussion. | [#9 — First worked review](https://github.com/HelixThinker/sre-cast/issues/9) |
-| 2 | Turn that workflow into one usable skill with a short installation and usage guide. | [#6 — Review skill and quickstart](https://github.com/HelixThinker/sre-cast/issues/6) |
+| 2 — done | [Usable review skill and quickstart](skills/sre-cast-review/README.md), based on the first worked review. | [#6 — Review skill and quickstart](https://github.com/HelixThinker/sre-cast/issues/6) |
 | 3 | Publish a second review showing useful questions and explicit limits when evidence is incomplete. | [#10 — Incomplete-evidence example](https://github.com/HelixThinker/sre-cast/issues/10) |
 
 The v0.1 deliverables are the skill, its quickstart, and two worked reviews.
@@ -92,15 +108,15 @@ model benchmarks, and separate re-review or approval stages are outside v0.1.
 Use ordinary Markdown, direct source links, and only the structure needed by the
 current example. Add tooling when a concrete recurring need appears.
 
-The intended locations are `skills/sre-cast-review/` for the skill and
+The locations are `skills/sre-cast-review/` for the skill and
 `examples/` for worked reviews. Bundle the method references and output
 resources that the skill actually uses. Broader template libraries, additional
 skills, integrations, and a public website can follow practical use.
 
 ## Current status
 
-The first worked review is published. The next step is the usable review skill
-and quickstart in #6, followed by the incomplete-evidence example in #10.
+The first worked review, usable review skill, and quickstart are published.
+The remaining v0.1 step is the incomplete-evidence example in #10.
 
 An earlier `mock-cast-foundation` prototype is available in
 [PR #8](https://github.com/HelixThinker/sre-cast/pull/8). It provides reusable
