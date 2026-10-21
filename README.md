@@ -2,6 +2,9 @@
 
 Incident review rules and a skill that turns evidence into an interactive map.
 
+**[Visit the project site](https://helixthinker.github.io/sre-cast/)** ·
+**[Explore the Cloudflare map](https://helixthinker.github.io/sre-cast/examples/cloudflare.html)**
+
 The rules explain what matters in a review. The skill makes a usable artifact:
 select a relationship to inspect its evidence, uncertainty, finding, and proposed
 change. Its value is keeping these together as the incident becomes clearer.
@@ -47,9 +50,11 @@ relationship content; it does not add nodes or rearrange the graph.
 
 ## Example
 
-[Cloudflare, July 2, 2019](examples/cloudflare.html) maps release control,
-resource contention, incident feedback, and emergency response. Download/open
-the HTML file to interact with it; GitHub displays its source.
+[Cloudflare, July 2, 2019](https://helixthinker.github.io/sre-cast/examples/cloudflare.html)
+maps release control, resource contention, incident feedback, and emergency
+response. Open the live map, or download [its HTML file](examples/cloudflare.html)
+for offline use. The [project site](https://helixthinker.github.io/sre-cast/#example)
+introduces the analysis and its concrete proposals.
 
 ## Themes and readability
 
@@ -74,6 +79,14 @@ A palette cannot guarantee medical comfort: lighting, glare, and screen brightne
 also matter ([American Optometric Association](https://www.aoa.org/aoa/documents/healthy%20eyes/digital_eyestrain.pdf)).
 Choose the theme that suits your environment; the app adds no flashing or motion.
 
-The repository contains one rules file, one skill, one HTML template, and one
-worked map. Earlier prose reviews and guides remain in Git history. Local books
-in `sources/` remain ignored.
+## Project site
+
+GitHub Pages publishes `index.html` and the existing example directly from the
+root of `main`. `.nojekyll` keeps publication static: no build tools, dependencies,
+or custom workflow. Changes merged into `main` update the site automatically.
+To preview locally, run `python3 -m http.server 8000` and open
+`http://localhost:8000/`. The landing page and maps share the same theme preference.
+
+The repository contains the site, one rules file, one skill, one HTML template,
+and one worked map. Earlier prose reviews and guides remain in Git history.
+Local books in `sources/` remain ignored.
