@@ -29,13 +29,15 @@ a usable map, with evidence and decisions attached to its relationships.
    labels, broken selection, or disagreement between arrows and detail text.
    If browser inspection is unavailable, state that limitation.
 6. Return a link to the HTML, the main finding, and the next useful action.
+   Mention Edit relationship → Apply changes → Save HTML for direct updates.
    Describe it as an interactive HTML map; only claim native Canvas integration
    if the host actually provides it.
 
 ## Data notes
 
 - `width` and `height` are canvas coordinates. Node `x,y` are centers; nodes are
-  220 × 86. Node labels allow up to three short lines. IDs need only be unique
+  220 × 86. Labels wrap to three short lines; longer text is abbreviated on the
+  diagram and remains available in details or tooltips. IDs need only be unique
   within this file.
 - Each relationship has `from`, `to`, `label`, `status`, and `labelAt: [x,y]`.
   Optional `via: [[x,y], ...]` routes the arrow around other objects. Endpoints
@@ -63,5 +65,8 @@ possible. Change statuses only when the evidence warrants it, and revise
 dependent findings, questions, and proposals together. State what changed and
 what remains unknown. Do not treat a hypothetical answer as new evidence.
 
-The current map is an inspection UI. Updates are saved by editing its data;
-there is no in-browser editor or automatic saving.
+The map also supports direct relationship editing, including sources. Apply changes
+updates the current page; Save HTML downloads a self-contained copy. It does not
+overwrite the original file or save changes automatically. Preserve these controls
+and the Light / Dark / Auto themes when updating a map. Auto follows the system;
+export must not freeze the author's resolved theme for other readers.
