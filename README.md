@@ -39,9 +39,9 @@ Identify supported conclusions and gaps, prioritize questions that would change
 our decisions, and explain how the action items address the findings.
 ```
 
-The guide includes a public Cloudflare example, local-file inputs, and continuing
-a review with new answers. The package includes its CAST notes and an adaptable
-output template; no additional runtime dependencies are required.
+The guide includes Cloudflare and Facebook examples, local-file inputs, and
+continuing a review with new answers. The package includes its CAST notes and
+an adaptable output template; no additional runtime dependencies are required.
 
 ## Example of the intended interaction
 
@@ -77,7 +77,7 @@ The project applies these principles to incident reviews:
 - Keep proposed improvements distinct from actions already agreed by a team.
 - State the scope and limits of each review, including missing internal context.
 
-## First worked review
+## Worked reviews
 
 [Cloudflare WAF outage — July 2, 2019](examples/cloudflare-2019-07-02/README.md)
 is the first published example. It includes the evidence boundary, a control
@@ -85,13 +85,20 @@ model, prioritized questions, and improvement proposals. The
 [source notes](examples/cloudflare-2019-07-02/sources.md) link to the relevant
 passages and explain the choice of incident.
 
+[Facebook backbone outage — October 4, 2021](examples/facebook-2021-10-04/README.md)
+shows how to review incomplete evidence. It separates the operator's explanation
+from external observations, prioritizes questions that change the choice of
+improvements, and shows how to continue when new evidence arrives. Its
+[source notes](examples/facebook-2021-10-04/sources.md) identify the three public
+accounts and the limits of their support.
+
 ## Plan for v0.1
 
 | Order | Deliverable | Issue |
 | --- | --- | --- |
 | 1 — done | [Cloudflare worked review](examples/cloudflare-2019-07-02/README.md) with sources, questions, and improvement discussion. | [#9 — First worked review](https://github.com/HelixThinker/sre-cast/issues/9) |
 | 2 — done | [Usable review skill and quickstart](skills/sre-cast-review/README.md), based on the first worked review. | [#6 — Review skill and quickstart](https://github.com/HelixThinker/sre-cast/issues/6) |
-| 3 | Publish a second review showing useful questions and explicit limits when evidence is incomplete. | [#10 — Incomplete-evidence example](https://github.com/HelixThinker/sre-cast/issues/10) |
+| 3 — done | [Facebook worked review](examples/facebook-2021-10-04/README.md) with incomplete evidence, prioritized questions, and conditional proposals. | [#10 — Incomplete-evidence example](https://github.com/HelixThinker/sre-cast/issues/10) |
 
 The v0.1 deliverables are the skill, its quickstart, and two worked reviews.
 
@@ -115,14 +122,13 @@ skills, integrations, and a public website can follow practical use.
 
 ## Current status
 
-The first worked review, usable review skill, and quickstart are published.
-The remaining v0.1 step is the incomplete-evidence example in #10.
+The v0.1 scope is complete: a usable review skill, its installation and usage
+guide, and two worked reviews. Improve them through use on further incidents.
 
-An earlier `mock-cast-foundation` prototype is available in
-[PR #8](https://github.com/HelixThinker/sre-cast/pull/8). It provides reusable
-starting material and stops before controller analysis and recommendations.
-It is not the v0.1 review skill. Earlier standalone infrastructure tasks have
-been closed as not planned.
+The earlier `mock-cast-foundation` prototype is retained in the history of
+[closed PR #8](https://github.com/HelixThinker/sre-cast/pull/8). Use
+`sre-cast-review` for the current workflow. Earlier standalone infrastructure
+tasks have been closed as not planned.
 
 ## Method sources
 

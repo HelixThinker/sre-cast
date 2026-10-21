@@ -85,6 +85,43 @@ uses both the detailed postmortem and the early incident update. Its
 explain the evidence boundary. It is a reference for depth and reasoning, not
 an exact output to reproduce or a claim of an internal investigation.
 
+## Review with incomplete evidence
+
+The [Facebook 2021 review](https://github.com/HelixThinker/sre-cast/blob/main/examples/facebook-2021-10-04/README.md)
+is the second worked example. Use it when you want to see how open questions
+guide improvement decisions without filling missing details with assumptions.
+Its [source notes](https://github.com/HelixThinker/sre-cast/blob/main/examples/facebook-2021-10-04/sources.md)
+separate operator accounts from an external observer's own measurements.
+
+To review the same material, send:
+
+```text
+$sre-cast-review
+Review the Facebook outage of October 4, 2021 using these three public sources:
+https://engineering.fb.com/2021/10/04/networking-traffic/outage/
+https://engineering.fb.com/2021/10/05/networking-traffic/outage-details/
+https://blog.cloudflare.com/october-2021-facebook-outage/
+
+Focus on command admission, reachability, and authorized recovery. Distinguish
+the operator's claims from independently observed external symptoms; a source
+repeating another source's explanation is not independent corroboration.
+Make decision-changing questions the main result. Keep missing command details,
+dependencies, owners, and effectiveness evidence unknown. Relate proposals to
+the evidence needed to choose them, and explain how to continue the review.
+```
+
+A useful result can leave the implementation choice unresolved. For example,
+requesting the operation record and validation result can distinguish the need
+to change an admission rule from the need to repair its implementation. A new
+approval step should not be presented as the answer before that distinction is
+understood. These are analytical possibilities, not additional incident facts.
+
+When actual new evidence becomes available, provide it alongside the saved
+review and ask which questions it answers, which control relationships change,
+and which proposals should be revised or withdrawn. The published example
+includes a clearly labeled hypothetical update rule, not invented participant
+testimony.
+
 ## Review your own incident
 
 Provide paths the assistant can read, attach files, or paste the text. Identify
@@ -133,6 +170,6 @@ contact participants, assign owners, or change production.
 - [Output template](assets/review-template.md): optional writing scaffold.
 - [Codex metadata](agents/openai.yaml): display name and starter prompt.
 
-The package is self-contained. The published Cloudflare example provides
-context but is not required at runtime.
+The package is self-contained. The published Cloudflare and Facebook examples
+provide context but are not required at runtime.
 
