@@ -4,41 +4,147 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Incident map</title>
+<script>
+// Apply a manual preference before paint; no attribute means live system preference.
+try {
+  const theme = localStorage.getItem('sre-cast-theme');
+  if (theme === 'light' || theme === 'dark') document.documentElement.dataset.theme = theme;
+} catch (_) { /* The map also works when browser storage is unavailable. */ }
+</script>
 <style>
-:root{color-scheme:light;--ink:#263d3c;--muted:#5d706c;--paper:#f6f5f0;--line:#d8dfd7;--accent:#12685c;--unknown:#a45b15}
-*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.55 system-ui,sans-serif}
-main{max-width:1480px;margin:auto;padding:36px 28px}h1{font-size:clamp(26px,3vw,40px);line-height:1.2;margin:6px 0 14px;letter-spacing:-.035em}
-h2{font-size:21px;line-height:1.3;margin:12px 0}h3{font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin:22px 0 6px;color:var(--muted)}
-p{margin:0 0 12px}.eyebrow{font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:var(--accent)}
-#scope{max-width:1000px;color:var(--muted);font-size:14px}#impact{max-width:1000px}.next{border-left:3px solid var(--accent);padding:10px 16px;background:#e9efe8;margin:20px 0 28px;max-width:1100px}
-.layout{display:grid;grid-template-columns:minmax(0,1fr) 360px;gap:22px;align-items:start}.map-card,aside{background:#fffefa;border:1px solid var(--line);border-radius:16px;overflow:hidden}
-.map-head{padding:20px 22px 0}.map-head p{font-size:13px;color:var(--muted)}.viewport{overflow:auto;padding:10px}svg{display:block;width:100%;min-width:700px;height:auto}
-.legend{display:flex;gap:9px;flex-wrap:wrap;padding:0 22px 20px}.badge{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.035em;border:1px solid var(--line);border-radius:20px;padding:3px 9px;color:var(--muted);background:#f6f7f1}
-.badge[data-status=unknown],.badge[data-status=hypothesis]{color:var(--unknown);background:#fff5e5;border-color:#efd7b6}.badge[data-status=proposed]{color:#175cb0;background:#eef4ff}.badge[data-status=inferred]{color:#695094;background:#f6f0ff}
-aside{padding:24px;overflow-wrap:anywhere}.route{font-size:13px;color:var(--muted)}#details p{white-space:pre-line;font-size:14px}#evidence{list-style:none;padding:0;margin:0}#evidence li{margin:10px 0;font-size:13px}#evidence small{display:block;color:var(--muted)}
-a{color:var(--accent);text-underline-offset:3px}button{font:inherit;cursor:pointer}.relationships{display:flex;flex-wrap:wrap;gap:8px;padding:16px 22px;border-top:1px solid var(--line)}
-.relationships button{background:transparent;border:1px solid var(--line);border-radius:8px;padding:8px 12px;text-align:left;color:var(--ink);font-size:13px}.relationships button[aria-pressed=true]{background:var(--accent);color:white;border-color:var(--accent)}
-button:focus-visible,a:focus-visible{outline:3px solid #e7ab42;outline-offset:3px}.node rect{fill:#edf2eb;stroke:#bccdc1}.node text{font-size:16px;font-weight:600;fill:var(--ink)}
-.edge{cursor:pointer}.wire{fill:none;stroke:#647c74;stroke-width:2.3;stroke-linejoin:round}.hit{fill:none;stroke:transparent;stroke-width:20}.edge[data-status]:not([data-status=reported]) .wire{stroke-dasharray:7 5}
-.edge[data-status=unknown] .wire,.edge[data-status=hypothesis] .wire{stroke:var(--unknown)}.edge[data-status=proposed] .wire{stroke:#3472b6}.edge[data-status=inferred] .wire{stroke:#8564aa}
-.edge rect{fill:#fffefa;stroke:var(--line)}.edge text{font-size:14px;fill:var(--ink)}.edge .edge-status{font-size:11px;font-weight:600;fill:var(--muted)}.edge[data-selected=true] rect{stroke:var(--accent);stroke-width:2}.edge[data-selected=true] .wire{stroke-width:4}
-footer{font-size:12px;color:var(--muted);margin:18px 0}#message{padding:22px}#message:empty{display:none}[hidden]{display:none!important}
-@media(max-width:1050px){.layout{grid-template-columns:1fr}aside{max-width:none}.viewport svg{min-width:700px}}@media(max-width:600px){main{padding:24px 12px}.map-head{padding:16px 16px 0}aside{padding:20px}}
+:root {
+  color-scheme: light;
+  --bg:#f4f7fb; --surface:#ffffff; --soft:#edf2f8; --ink:#152238;
+  --muted:#526279; --border:#d3deeb; --control:#72849a;
+  --accent:#1556ae; --on-accent:#ffffff; --accent-soft:#e8f1ff; --focus:#1556ae;
+  --wire:#526b88; --unknown:#89520c; --unknown-soft:#fff3dc;
+  --inferred:#6444a8; --inferred-soft:#f0ebff; --danger:#a52d42;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg:#0d121c; --surface:#131b28; --soft:#1b293d; --ink:#dce5ee;
+  --muted:#abb8c8; --border:#33445c; --control:#7188a5;
+  --accent:#94bcfa; --on-accent:#101a2b; --accent-soft:#152a46; --focus:#94bcfa;
+  --wire:#91a9c7; --unknown:#e1b56e; --unknown-soft:#332715;
+  --inferred:#c3aff0; --inferred-soft:#292044; --danger:#f1a1b2;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    color-scheme: dark;
+    --bg:#0d121c; --surface:#131b28; --soft:#1b293d; --ink:#dce5ee;
+    --muted:#abb8c8; --border:#33445c; --control:#7188a5;
+    --accent:#94bcfa; --on-accent:#101a2b; --accent-soft:#152a46; --focus:#94bcfa;
+    --wire:#91a9c7; --unknown:#e1b56e; --unknown-soft:#332715;
+    --inferred:#c3aff0; --inferred-soft:#292044; --danger:#f1a1b2;
+  }
+}
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:1rem/1.65 system-ui,sans-serif; }
+main { max-width:1520px; margin:auto; padding:28px; }
+h1 { font-size:clamp(1.75rem,3vw,2.5rem); line-height:1.25; margin:12px 0 16px; letter-spacing:-.02em; }
+h2 { font-size:1.35rem; line-height:1.4; margin:12px 0; }
+h3 { font-size:1rem; line-height:1.4; margin:24px 0 8px; }
+p { margin:0 0 16px; }
+a { color:var(--accent); text-underline-offset:3px; }
+button,input,select,textarea { font:inherit; }
+button,select { cursor:pointer; }
+button,input,select,textarea { color:var(--ink); background:var(--surface); border:1px solid var(--control); border-radius:8px; min-height:44px; padding:8px 12px; }
+button:hover { background:var(--soft); }
+button.primary,.relationships button[aria-pressed=true] { background:var(--accent); color:var(--on-accent); border-color:var(--accent); }
+button.primary:hover { text-decoration:underline; text-underline-offset:3px; }
+button:disabled { opacity:.55; cursor:default; }
+:focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
+::selection { background:var(--accent); color:var(--on-accent); }
+.topbar,.toolbar,.actions,.detail-heading { display:flex; align-items:center; flex-wrap:wrap; gap:12px; }
+.topbar { justify-content:space-between; }
+.eyebrow { font-size:.875rem; font-weight:650; color:var(--muted); }
+.theme-control { display:flex; align-items:center; gap:8px; }
+#scope,.route,.hint,footer { color:var(--muted); font-size:.875rem; }
+#scope,#impact { max-width:85ch; }
+.next { border-left:3px solid var(--accent); padding:12px 18px; background:var(--accent-soft); margin:20px 0; max-width:95ch; }
+#save-state { min-height:1.65em; margin:0 0 20px; font-size:.875rem; color:var(--muted); }
+.layout { display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:24px; align-items:start; }
+.map-card,aside { background:var(--surface); border:1px solid var(--border); border-radius:16px; min-width:0; }
+.map-head { padding:20px 22px 0; }
+.map-head p { font-size:.875rem; color:var(--muted); }
+.viewport { overflow:auto; padding:10px; border-radius:12px; }
+svg { display:block; width:100%; min-width:760px; height:auto; }
+.legend { display:flex; gap:9px; flex-wrap:wrap; padding:0 22px 20px; }
+.badge { display:inline-block; font-size:.875rem; font-weight:600; border:1px solid var(--border); border-radius:20px; padding:3px 10px; color:var(--muted); background:var(--soft); }
+.badge[data-status=unknown],.badge[data-status=hypothesis] { color:var(--unknown); background:var(--unknown-soft); }
+.badge[data-status=inferred] { color:var(--inferred); background:var(--inferred-soft); }
+.badge[data-status=proposed] { color:var(--accent); background:var(--accent-soft); }
+aside { padding:24px; overflow-wrap:anywhere; }
+.detail-heading { justify-content:space-between; }
+#details p { white-space:pre-line; }
+#evidence { list-style:none; padding:0; margin:0; }
+#evidence li { margin:12px 0; }
+#evidence small { display:block; font-size:.875rem; color:var(--muted); }
+.relationships { display:flex; flex-wrap:wrap; gap:10px; padding:18px 22px; border-top:1px solid var(--border); }
+.relationships button { text-align:left; font-size:.875rem; overflow-wrap:anywhere; }
+.node rect { fill:var(--soft); stroke:var(--control); stroke-width:1.5; }
+.node text { font:600 20px system-ui,sans-serif; fill:var(--ink); }
+.edge { cursor:pointer; }
+.wire { fill:none; stroke:var(--wire); stroke-width:2.5; stroke-linejoin:round; }
+.arrow-tip { fill:var(--wire); }
+.hit { fill:none; stroke:transparent; stroke-width:24; }
+.edge:not([data-status=reported]) .wire { stroke-dasharray:7 5; }
+.edge[data-status=unknown] .wire,.edge[data-status=hypothesis] .wire { stroke:var(--unknown); }
+.edge[data-status=proposed] .wire { stroke:var(--accent); }
+.edge[data-status=inferred] .wire { stroke:var(--inferred); }
+.edge rect { fill:var(--surface); stroke:var(--control); }
+.edge text { font:18px system-ui,sans-serif; fill:var(--ink); }
+.edge .edge-status { font:600 16px system-ui,sans-serif; fill:var(--muted); }
+.edge[data-selected=true] rect { stroke:var(--accent); stroke-width:3; }
+.edge[data-selected=true] .wire { stroke-width:4; }
+footer { margin:22px 0; max-width:95ch; }
+#message { padding:22px; } #message:empty { display:none; }
+dialog { color:var(--ink); background:var(--surface); border:1px solid var(--control); border-radius:16px; width:min(720px,calc(100% - 24px)); max-height:calc(100dvh - 32px); padding:24px; overflow:auto; }
+dialog::backdrop { background:rgb(5 12 24 / .65); }
+#editor-title { margin-top:0; }
+#edit-form > label { display:block; font-weight:600; margin-top:20px; }
+#edit-form input,#edit-form textarea,#edit-form select { display:block; width:100%; margin-top:6px; }
+textarea { resize:vertical; line-height:1.6; }
+fieldset { margin:18px 0; padding:16px; border:1px solid var(--control); border-radius:10px; min-width:0; }
+legend { font-weight:600; padding:0 6px; }
+fieldset label { display:block; margin:12px 0; }
+fieldset .remove-source { color:var(--danger); }
+.actions { margin:24px 0 0; }
+#error { color:var(--danger); }
+[hidden] { display:none!important; }
+.skip-link { position:absolute; left:16px; top:-100px; padding:12px; background:var(--surface); z-index:2; }
+.skip-link:focus { top:12px; }
+@media(max-width:1080px) { .layout { grid-template-columns:1fr; } }
+@media(max-width:600px) { main { padding:20px 12px; } aside,dialog { padding:20px; } .toolbar { width:100%; } .map-head { padding:16px 16px 0; } }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto!important; animation:none!important; transition:none!important; } }
+@media(forced-colors:active) {
+  :root { --bg:Canvas; --surface:Canvas; --soft:Canvas; --ink:CanvasText; --muted:CanvasText; --border:CanvasText; --control:ButtonText; --accent:Highlight; --on-accent:HighlightText; --accent-soft:Canvas; --focus:Highlight; --wire:CanvasText; --unknown:CanvasText; --unknown-soft:Canvas; --inferred:CanvasText; --inferred-soft:Canvas; --danger:CanvasText; }
+  .node rect,.edge rect { fill:Canvas; stroke:CanvasText; } .node text,.edge text,.edge .edge-status { fill:CanvasText; }
+  .edge .wire { stroke:CanvasText!important; } .arrow-tip { fill:CanvasText; } .edge[data-selected=true] rect { stroke:Highlight; }
+  .relationships button[aria-pressed=true] { outline:3px solid Highlight; }
+}
 </style>
 </head>
 <body>
+<a class="skip-link" href="#relationships">Skip to relationships</a>
 <main>
-<header><div class="eyebrow">SRE CAST · Incident map</div><h1 id="title">Incident map</h1><p id="scope"></p><p id="impact"></p><div class="next" id="next"></div></header>
+<header>
+<div class="topbar"><div class="eyebrow">SRE CAST · Incident map</div>
+<div class="toolbar"><div class="theme-control"><label for="theme">Theme</label><select id="theme"><option value="system">Auto · system</option><option value="light">Light</option><option value="dark">Dark</option></select></div><button type="button" class="primary" id="download" disabled>Save HTML</button></div></div>
+<h1 id="title">Incident map</h1><p id="scope"></p><p id="impact"></p><div class="next" id="next"></div>
+<p id="save-state" role="status">Save HTML downloads a new copy. The original file stays unchanged.</p>
+</header>
 <div class="layout">
 <section class="map-card" aria-label="Control map">
 <div class="map-head"><strong>Controls &amp; feedback</strong><p>Select an arrow or a relationship button. Dashed lines need their status read with them.</p></div>
 <div id="message" role="status"></div>
-<div class="viewport"><svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Incident control relationships; use the buttons below to inspect each relationship."></svg></div>
+<div class="viewport" tabindex="0" aria-label="Scrollable control map"><svg id="map" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Incident control relationships; use the buttons below to inspect each relationship."></svg></div>
 <div class="legend" id="legend" aria-label="Evidence statuses"></div>
-<nav class="relationships" id="relationships" aria-label="Inspect relationships"></nav>
+<nav class="relationships" id="relationships" aria-label="Inspect relationships" tabindex="-1"></nav>
 </section>
-<aside id="details" aria-live="polite" hidden>
-<span class="badge" id="status"></span><h2 id="relationship"></h2><p class="route" id="route"></p>
+<aside id="details" hidden>
+<div class="detail-heading"><span class="badge" id="status"></span><button type="button" id="edit">Edit relationship</button></div>
+<h2 id="relationship" tabindex="-1"></h2><p class="route" id="route"></p>
 <section id="finding-section"><h3>Finding &amp; limits</h3><p id="finding"></p></section>
 <section id="evidence-section"><h3>Evidence</h3><ul id="evidence"></ul></section>
 <section id="question-section"><h3>What would change the decision?</h3><p id="question"></p></section>
@@ -46,8 +152,26 @@ footer{font-size:12px;color:var(--muted);margin:18px 0}#message{padding:22px}#me
 <section id="check-section"><h3>Observable check</h3><p id="check"></p></section>
 </aside>
 </div>
-<footer>“Reported” means stated by a source, not independently verified. Proposals are not historical facts. This file supports inspection; ask the agent to update it with new evidence.</footer>
+<footer>“Reported” means stated by a source, not independently verified. Proposals are not historical facts. Adding evidence does not change a relationship’s status automatically.</footer>
 </main>
+<dialog id="editor" aria-labelledby="editor-title" aria-describedby="editor-help">
+<form id="edit-form">
+<h2 id="editor-title">Edit relationship</h2>
+<p class="hint" id="editor-help">Apply changes to this map, then use Save HTML to keep them in a new file. Cancel leaves the relationship unchanged.</p>
+<label for="edit-label">Relationship label</label><textarea id="edit-label" rows="2" required aria-describedby="label-help"></textarea>
+<p class="hint" id="label-help">Keep it short. Long labels are abbreviated on the diagram; the full text stays in the details.</p>
+<label for="edit-status">Evidence status</label><select id="edit-status" aria-describedby="status-help"><option value="reported">Reported</option><option value="inferred">Inferred</option><option value="hypothesis">Hypothesis</option><option value="unknown">Unknown</option><option value="proposed">Proposed</option></select>
+<p class="hint" id="status-help">Change this only when the evidence warrants it. A source is not independent verification.</p>
+<label for="edit-finding">Finding &amp; limits</label><textarea id="edit-finding" rows="4"></textarea>
+<h3>Evidence sources</h3><p class="hint">For local evidence, leave the URL blank and put its file path and passage in the locator.</p>
+<div id="edit-evidence"></div><button type="button" id="add-source">Add source</button>
+<label for="edit-question">What would change the decision?</label><textarea id="edit-question" rows="4"></textarea>
+<label for="edit-proposal">Proposed change</label><textarea id="edit-proposal" rows="4"></textarea>
+<label for="edit-check">Observable check</label><textarea id="edit-check" rows="4"></textarea>
+<p id="error" role="alert"></p>
+<div class="actions"><button type="submit" class="primary">Apply changes</button><button type="button" id="cancel-edit">Cancel</button></div>
+</form>
+</dialog>
 <script id="incident-data" type="application/json">
 {
   "title": "Cloudflare · July 2, 2019",
@@ -249,54 +373,83 @@ footer{font-size:12px;color:var(--muted);margin:18px 0}#message{padding:22px}#me
 <script>
 'use strict';
 const $ = id => document.getElementById(id);
+// Capture pristine markup before rendering. Downloads never serialize live controls or SVGs.
+const originalDocument = document.documentElement.cloneNode(true);
 const statuses = new Map([['reported','Reported'],['inferred','Inferred'],['hypothesis','Hypothesis'],['unknown','Unknown'],['proposed','Proposed']]);
+const fields = ['label','status','finding','question','proposal','check'];
+$('theme').value = document.documentElement.dataset.theme || 'system';
+$('theme').addEventListener('change', () => {
+  const theme = $('theme').value;
+  if (theme === 'system') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = theme;
+  try { localStorage.setItem('sre-cast-theme',theme); } catch (_) {}
+});
 const ns = 'http://www.w3.org/2000/svg';
 const svgElement = (tag, attrs, parent) => {
   const el = document.createElementNS(ns, tag);
   for (const [key,value] of Object.entries(attrs)) el.setAttribute(key, value);
   parent.append(el); return el;
 };
-function lines(parent, label, x, y, className='') {
-  const parts = String(label).split('\n');
-  const text = svgElement('text', {x, y, 'text-anchor':'middle', class:className}, parent);
-  parts.forEach((part,i) => {
-    const span = svgElement('tspan', {x, y:y+(i-(parts.length-1)/2)*20}, text);
-    span.textContent = part;
-  });
+const measure = document.createElement('canvas').getContext('2d');
+function wrapLabel(value, font, width, maxLines=3) {
+  measure.font=font;
+  const result=[];
+  for (const paragraph of String(value).split('\n')) {
+    let line='';
+    for (const word of paragraph.trim().split(/\s+/)) {
+      if (line && measure.measureText(line+' '+word).width>width) { result.push(line); line=''; }
+      let chunk='';
+      for (const char of word) {
+        if (chunk && measure.measureText(chunk+char).width>width) { result.push(chunk); chunk=''; }
+        chunk+=char;
+      }
+      line+=(line?' ':'')+chunk;
+    }
+    result.push(line);
+  }
+  if (result.length>maxLines) {
+    result.length=maxLines;
+    let last=result[maxLines-1];
+    while (last && measure.measureText(last+'…').width>width) last=last.slice(0,-1);
+    result[maxLines-1]=last+'…';
+  }
+  return result;
+}
+function lines(parent, parts, x, y, className='', gap=24) {
+  const text=svgElement('text',{x,y,'text-anchor':'middle',class:className},parent);
+  parts.forEach((part,i) => { const span=svgElement('tspan',{x,y:y+(i-(parts.length-1)/2)*gap},text); span.textContent=part; });
 }
 function border(node, toward) {
-  const dx=toward[0]-node.x, dy=toward[1]-node.y;
+  const dx=toward[0]-node.x,dy=toward[1]-node.y;
   const scale=1/Math.max(Math.abs(dx)/110,Math.abs(dy)/43);
   if (!Number.isFinite(scale)) throw new Error('Route points must differ from node centers.');
   return [node.x+dx*scale,node.y+dy*scale];
 }
 function safeURL(value) {
-  try { const url = new URL(value); return ['http:','https:'].includes(url.protocol) ? url.href : null; }
+  try { const url=new URL(value); return ['http:','https:'].includes(url.protocol) ? url.href : null; }
   catch { return null; }
 }
 try {
   const data=JSON.parse($('incident-data').textContent);
-  const point = p => Array.isArray(p) && p.length===2 && p.every(Number.isFinite);
-  if (!Number.isFinite(data.width) || !Number.isFinite(data.height) || data.width<=0 || data.height<=0 || !Array.isArray(data.nodes) || !Array.isArray(data.relationships)) throw new Error('Invalid canvas or relationship data.');
+  let selected=0,lastDownload=JSON.stringify(data),draftBaseline='',sourceCounter=0;
+  const sourceOriginals=new WeakMap();
+  const point=p=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite);
+  if (!Number.isFinite(data.width)||!Number.isFinite(data.height)||data.width<=0||data.height<=0||!Array.isArray(data.nodes)||!Array.isArray(data.relationships)) throw new Error('Invalid canvas or relationship data.');
   const nodes=new Map();
   for (const n of data.nodes) {
-    if (typeof n.id!=='string' || nodes.has(n.id) || !point([n.x,n.y]) || typeof n.label!=='string') throw new Error('Nodes need unique IDs, labels, and numeric positions.');
+    if (typeof n.id!=='string'||nodes.has(n.id)||!point([n.x,n.y])||typeof n.label!=='string') throw new Error('Nodes need unique IDs, labels, and numeric positions.');
     nodes.set(n.id,n);
   }
   for (const r of data.relationships) {
-    if (!nodes.has(r.from) || !nodes.has(r.to) || r.from===r.to || !statuses.has(r.status) || typeof r.label!=='string' || !point(r.labelAt) || (r.via && (!Array.isArray(r.via) || !r.via.every(point)))) throw new Error('Invalid relationship endpoint, status, label, or route.');
-    if (r.evidence && !Array.isArray(r.evidence)) throw new Error('Evidence must be a list.');
+    if (!nodes.has(r.from)||!nodes.has(r.to)||r.from===r.to||!statuses.has(r.status)||typeof r.label!=='string'||!point(r.labelAt)||(r.via&&(!Array.isArray(r.via)||!r.via.every(point)))) throw new Error('Invalid relationship endpoint, status, label, or route.');
+    if (r.evidence&&(!Array.isArray(r.evidence)||r.evidence.some(e=>!e||typeof e!=='object'))) throw new Error('Evidence must be a list of sources.');
   }
-  for (const field of ['title','scope','impact','next']) { $(field).textContent=data[field] || ''; $(field).hidden=!data[field]; }
-  document.title=data.title || 'Incident map';
+  for (const field of ['title','scope','impact','next']) { $(field).textContent=data[field]||''; $(field).hidden=!data[field]; }
+  document.title=data.title||'Incident map';
   const svg=$('map'); svg.setAttribute('viewBox',`0 0 ${data.width} ${data.height}`);
-  const defs=svgElement('defs',{},svg);
-  const marker=svgElement('marker',{id:'arrow',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto-start-reverse'},defs);
-  svgElement('path',{d:'M 0 0 L 10 5 L 0 10 z',fill:'#647c74'},marker);
-  const edgeLayer=svgElement('g',{},svg), nodeLayer=svgElement('g',{},svg), labelLayer=svgElement('g',{},svg);
-  const groups=[], labels=[], buttons=[];
-  function select(index) {
-    const r=data.relationships[index];
+  let groups=[],labels=[],buttons=[];
+  function select(index,fromUser=false) {
+    selected=index; const r=data.relationships[index];
     groups.forEach((g,i)=>g.dataset.selected=String(i===index));
     labels.forEach((g,i)=>g.dataset.selected=String(i===index));
     buttons.forEach((b,i)=>b.setAttribute('aria-pressed',String(i===index)));
@@ -304,44 +457,119 @@ try {
     $('status').textContent=statuses.get(r.status); $('status').dataset.status=r.status;
     $('relationship').textContent=r.label.replaceAll('\n',' ');
     $('route').textContent=`${nodes.get(r.from).label.replaceAll('\n',' ')} → ${nodes.get(r.to).label.replaceAll('\n',' ')}`;
-    for (const field of ['finding','question','proposal','check']) { $(field).textContent=r[field] || ''; $(field+'-section').hidden=!r[field]; }
+    for (const field of ['finding','question','proposal','check']) { $(field).textContent=r[field]||''; $(field+'-section').hidden=!r[field]; }
     $('evidence').replaceChildren();
-    for (const e of r.evidence || []) {
-      const li=document.createElement('li'), url=safeURL(e.url);
-      const name=document.createElement(url ? 'a' : 'span'); name.textContent=e.label || e.url || 'Source';
+    for (const e of r.evidence||[]) {
+      const li=document.createElement('li'),url=safeURL(e.url);
+      const name=document.createElement(url?'a':'span'); name.textContent=e.label||e.url||'Source';
       if (url) {name.href=url;name.target='_blank';name.rel='noopener noreferrer';}
-      const locator=document.createElement('small'); locator.textContent=e.locator || '';
-      li.append(name,locator); $('evidence').append(li);
+      const locator=document.createElement('small');locator.textContent=e.locator||'';
+      li.append(name,locator);$('evidence').append(li);
     }
-    if (!(r.evidence || []).length) {const li=document.createElement('li');li.textContent='No supporting source supplied for this relationship.';$('evidence').append(li);}
+    if (!(r.evidence||[]).length) {const li=document.createElement('li');li.textContent='No supporting source supplied for this relationship.';$('evidence').append(li);}
+    if (fromUser && matchMedia('(max-width:1080px)').matches) $('relationship').focus();
   }
-  data.relationships.forEach((r,i)=>{
-    const from=nodes.get(r.from),to=nodes.get(r.to),via=r.via || [];
-    const start=border(from,via[0] || [to.x,to.y]),end=border(to,via[via.length-1] || [from.x,from.y]);
-    const points=[start,...via,end].map(p=>p.join(',')).join(' ');
-    const group=svgElement('g',{class:'edge','data-status':r.status},edgeLayer);
-    svgElement('polyline',{points,class:'wire','marker-end':'url(#arrow)'},group);
-    svgElement('polyline',{points,class:'hit'},group);
-    group.addEventListener('click',()=>select(i)); groups.push(group);
-    const label=svgElement('g',{class:'edge','data-status':r.status},labelLayer);
-    const [x,y]=r.labelAt, parts=r.label.split('\n'),width=Math.max(150,...parts.map(t=>t.length*8+26)),height=parts.length*20+28;
-    svgElement('rect',{x:x-width/2,y:y-height/2,width,height,rx:8},label);
-    lines(label,r.label,x,y-6); lines(label,`${i+1} · ${statuses.get(r.status)}`,x,y+height/2-9,'edge-status');
-    label.addEventListener('click',()=>select(i)); labels.push(label);
-    const button=document.createElement('button');button.type='button';button.textContent=`${i+1}. ${r.label.replaceAll('\n',' ')}`;
-    button.addEventListener('click',()=>select(i));$('relationships').append(button);buttons.push(button);
+  function renderMap() {
+    svg.replaceChildren();$('relationships').replaceChildren();$('legend').replaceChildren();
+    groups=[];labels=[];buttons=[];
+    const defs=svgElement('defs',{},svg);
+    const marker=svgElement('marker',{id:'arrow',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto-start-reverse'},defs);
+    svgElement('path',{d:'M 0 0 L 10 5 L 0 10 z',class:'arrow-tip'},marker);
+    const edgeLayer=svgElement('g',{},svg),nodeLayer=svgElement('g',{},svg),labelLayer=svgElement('g',{},svg);
+    data.relationships.forEach((r,i)=>{
+      const from=nodes.get(r.from),to=nodes.get(r.to),via=r.via||[];
+      const points=[border(from,via[0]||[to.x,to.y]),...via,border(to,via[via.length-1]||[from.x,from.y])].map(p=>p.join(',')).join(' ');
+      const group=svgElement('g',{class:'edge','data-status':r.status},edgeLayer);
+      svgElement('polyline',{points,class:'wire','marker-end':'url(#arrow)'},group);
+      svgElement('polyline',{points,class:'hit'},group);
+      group.addEventListener('click',()=>select(i,true));groups.push(group);
+      const label=svgElement('g',{class:'edge','data-status':r.status},labelLayer);
+      svgElement('title',{},label).textContent=r.label;
+      const parts=wrapLabel(r.label,'18px system-ui',196),width=220,height=parts.length*24+32;
+      const x=Math.max(width/2+8,Math.min(data.width-width/2-8,r.labelAt[0]));
+      const y=Math.max(height/2+8,Math.min(data.height-height/2-8,r.labelAt[1]));
+      svgElement('rect',{x:x-width/2,y:y-height/2,width,height,rx:8},label);
+      lines(label,parts,x,y-8);lines(label,[`${i+1} · ${statuses.get(r.status)}`],x,y+height/2-10,'edge-status');
+      label.addEventListener('click',()=>select(i,true));labels.push(label);
+      const button=document.createElement('button');button.type='button';button.textContent=`${i+1}. ${r.label.replaceAll('\n',' ')}`;
+      button.addEventListener('click',()=>select(i,true));$('relationships').append(button);buttons.push(button);
+    });
+    for (const n of nodes.values()) {
+      const group=svgElement('g',{class:'node'},nodeLayer);
+      svgElement('title',{},group).textContent=n.label;
+      svgElement('rect',{x:n.x-110,y:n.y-43,width:220,height:86,rx:12},group);
+      lines(group,wrapLabel(n.label,'600 20px system-ui',198),n.x,n.y+5);
+    }
+    for (const status of new Set(data.relationships.map(r=>r.status))) {
+      const badge=document.createElement('span');badge.className='badge';badge.dataset.status=status;
+      badge.textContent=`${status==='reported'?'―':'┄'} ${statuses.get(status)}`;$('legend').append(badge);
+    }
+    if (data.relationships.length) select(selected);
+    else {$('message').textContent='No relationships yet. Fill the incident-data block using the incident-map skill.';svg.setAttribute('hidden','');}
+  }
+  function addSource(source={}) {
+    const fieldset=document.createElement('fieldset');sourceOriginals.set(fieldset,source);
+    const legend=document.createElement('legend');legend.textContent='Source';fieldset.append(legend);
+    for (const [key,title] of [['label','Source name'],['url','URL (optional, HTTP or HTTPS)'],['locator','Passage, timestamp, or file path']]) {
+      const id=`source-${sourceCounter++}`;
+      const label=document.createElement('label');label.htmlFor=id;label.textContent=title;
+      const input=document.createElement(key==='locator'?'textarea':'input');input.id=id;input.dataset.field=key;
+      if (key==='locator') input.rows=2; else input.type=key==='url'?'url':'text';
+      input.value=source[key]||'';
+      label.append(input);fieldset.append(label);
+    }
+    const remove=document.createElement('button');remove.type='button';remove.className='remove-source';remove.textContent='Remove source';
+    remove.addEventListener('click',()=>{fieldset.remove();$('add-source').focus();});fieldset.append(remove);
+    $('edit-evidence').append(fieldset);return fieldset;
+  }
+  function readDraft() {
+    const draft={};for(const field of fields) draft[field]=$('edit-'+field).value;
+    draft.evidence=Array.from($('edit-evidence').children,group=>{
+      const source={...sourceOriginals.get(group)};
+      for(const input of group.querySelectorAll('[data-field]')) source[input.dataset.field]=input.value;
+      return source;
+    });return draft;
+  }
+  $('edit').addEventListener('click',()=>{
+    const r=data.relationships[selected];
+    for (const field of fields) $('edit-'+field).value=r[field]||'';
+    $('edit-evidence').replaceChildren();for (const source of r.evidence||[]) addSource(source);
+    $('error').textContent='';$('edit-label').setCustomValidity('');draftBaseline=JSON.stringify(readDraft());
+    $('editor').showModal();$('edit-label').focus();
   });
-  for (const n of nodes.values()) {
-    const group=svgElement('g',{class:'node'},nodeLayer);
-    svgElement('rect',{x:n.x-110,y:n.y-43,width:220,height:86,rx:12},group);
-    lines(group,n.label,n.x,n.y+5);
-  }
-  for (const status of new Set(data.relationships.map(r=>r.status))) {
-    const badge=document.createElement('span');badge.className='badge';badge.dataset.status=status;
-    badge.textContent=`${status==='reported' ? '―' : '┄'} ${statuses.get(status)}`;$('legend').append(badge);
-  }
-  if (data.relationships.length) select(0);
-  else {$('message').textContent='No relationships yet. Fill the incident-data block using the incident-map skill.';svg.setAttribute('hidden','');}
+  $('add-source').addEventListener('click',()=>addSource().querySelector('input').focus());
+  $('cancel-edit').addEventListener('click',()=>$('editor').close());
+  $('editor').addEventListener('close',()=>$('edit').focus());
+  $('edit-form').addEventListener('input',event=>{if(event.target.setCustomValidity) event.target.setCustomValidity('');});
+  $('edit-form').addEventListener('submit',event=>{
+    event.preventDefault();const draft=readDraft();
+    if(!draft.label.trim()) {$('edit-label').setCustomValidity('Enter a relationship label.');$('edit-label').reportValidity();return;}
+    for(const input of $('edit-evidence').querySelectorAll('[data-field="url"]')) {
+      if(input.value.trim()&&!safeURL(input.value)) {input.setCustomValidity('Use an HTTP or HTTPS URL, or leave it blank for local evidence.');input.reportValidity();return;}
+    }
+    draft.evidence=draft.evidence.filter(e=>e.label||e.url||e.locator);
+    data.relationships[selected]={...data.relationships[selected],...draft};
+    renderMap();$('editor').close();
+    $('save-state').textContent=JSON.stringify(data)===lastDownload?'No changes since the last download.':'Changes applied in this page. Use Save HTML to keep them in a new file.';
+  });
+  $('download').addEventListener('click',()=>{
+    try {
+      const copy=originalDocument.cloneNode(true);
+      copy.removeAttribute('data-theme');
+      copy.querySelector('#incident-data').textContent='\n'+JSON.stringify(data,null,2).replaceAll('<','\\u003c')+'\n';
+      copy.querySelector('title').textContent=data.title||'Incident map';
+      const html='<!doctype html>\n'+copy.outerHTML;
+      const url=URL.createObjectURL(new Blob([html],{type:'text/html;charset=utf-8'}));
+      const anchor=document.createElement('a');anchor.href=url;
+      anchor.download=(String(data.title||'incident-map').replace(/[^\p{L}\p{N}._-]+/gu,'-').replace(/^-+|-+$/g,'')||'incident-map')+'.html';
+      document.body.append(anchor);anchor.click();anchor.remove();setTimeout(()=>URL.revokeObjectURL(url),30000);
+      lastDownload=JSON.stringify(data);$('save-state').textContent='HTML download requested. Open the downloaded copy to continue; the original file is unchanged.';
+    } catch(error) {$('save-state').textContent=`Download failed: ${error.message}. Your changes are still in this page; try Save HTML again.`;}
+  });
+  window.addEventListener('beforeunload',event=>{
+    if(JSON.stringify(data)!==lastDownload||($('editor').open&&JSON.stringify(readDraft())!==draftBaseline)) {event.preventDefault();event.returnValue='';}
+  });
+  renderMap();$('download').disabled=false;
 } catch(error) {
   $('message').textContent=`Could not render this map: ${error.message}`;
   $('map').replaceChildren();$('map').setAttribute('hidden','');$('relationships').replaceChildren();$('details').hidden=true;
