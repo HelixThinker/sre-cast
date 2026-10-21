@@ -11,14 +11,26 @@ A worked SRE CAST review with incomplete evidence, using
 
 ## Review outcome
 
-**Our interpretation:** the next useful decision is which control relationship
-needs redesign. Establishing a harmful outcome does not distinguish a defective
-implementation from an inadequate constraint or an execution path that escaped
-that constraint.
+**Our interpretation:** command admission, reachability policy, and recovery
+access must be examined together. A maintenance action can change both the
+service state and the conditions under which responders can correct it.
 
-Begin with command admission and recovery access. The questions below explain
-which evidence would separate those possibilities. An immediate prescription
-such as another approval step or another access network would be premature.
+The review produces three concrete findings and decision boundaries:
+
+| Finding | Consequence for the incident discussion | Limit on the conclusion |
+| --- | --- | --- |
+| The reported admission safeguard did not stop the harmful command. | Examine the requested, checked, and executed operation together before choosing a correction. | The specific defect and enforcement boundary remain unknown. |
+| DNS-route withdrawal followed the loss of backbone connectivity. | Evaluate the reachability policy under correlated failures, including its effect on operational tools. | A locally intended response is not automatically a faulty policy; the alternative behavior needs analysis. |
+| Intervention depended on access and tools affected during the outage. | Treat recoverability as a constraint on the change and access design. | A second transport network is not a justified prescription until the failed prerequisites are identified. |
+
+These findings are interpretations of the
+[operator's account](sources.md#maintenance-and-audit) and its
+[reachability](sources.md#reachability) and
+[intervention](sources.md#intervention) descriptions. They do not establish
+individual fault or a complete organizational explanation.
+
+The immediate next evidence is the command/audit record and recovery-path map.
+They determine which of the conditional proposals below should proceed.
 
 This example applies the skill's evidence, control, question, and improvement
 workflow. It adapts the template to keep unanswered questions central.
@@ -83,6 +95,31 @@ This is a **review model**, not a verified topology or reporting hierarchy.
 The [maintenance](sources.md#maintenance-and-audit),
 [reachability](sources.md#reachability), and
 [intervention](sources.md#intervention) passages motivate the questions.
+
+```mermaid
+flowchart TD
+    C["Maintenance operator and command audit"] -->|"harmful command reached execution"| B["Backbone connectivity"]
+    B -->|"health feedback: connectivity lost"| H["DNS reachability control"]
+    H -->|"withdraw DNS route advertisements"| D["Authoritative DNS reachability"]
+    D -->|"name resolution fails"| U["User-facing service access"]
+    D -->|"DNS-dependent tools unavailable"| R["Incident responders"]
+    A["Primary and out-of-band access unavailable"] -->|"remote intervention blocked"| R
+    R -->|"onsite intervention"| B
+    B -.->|"access dependency: exact failure unknown"| A
+    B -.->|"command-state feedback: not established"| C
+    B -.->|"recovery confirmation path: not established"| R
+```
+
+Solid arrows summarize reported actions, feedback, and effects. Dashed arrows
+mark relationships that need evidence; they do not assert a shared physical
+network or the absence of feedback. The audit node groups a responsibility and
+a safeguard, without claiming their implementation topology.
+
+The two loops are the analytical focus: **command → network → feedback to
+command control**, and **responder → network → confirmation to responder**.
+Their missing detail is what questions 1 and 2 seek to recover. The DNS branch
+shows propagation through another controller, rather than an independent DNS
+trigger.
 
 | Role or mechanism | Action and controlled process | Feedback or model question still open |
 | --- | --- | --- |
