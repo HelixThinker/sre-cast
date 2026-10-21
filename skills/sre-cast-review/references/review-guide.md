@@ -45,6 +45,36 @@ Explain local actions in their operational and organizational context. Extend
 the boundary only when an interaction matters to the loss or a decision.
 Unknown staffing, incentives, or management priorities must stay unknown.
 
+## Diagram conventions
+
+Use a compact model of the incident's relevant control relationships. Show a
+controller's action on a process and the feedback it could use; label the
+action and signal on the arrows. A failure timeline alone does not show this
+loop. When feedback is undocumented, mark that uncertainty rather than silently
+omitting the return path or claiming that feedback was absent.
+
+- **Solid arrow:** a relationship supported by the cited material. Distinguish
+  source-reported support from independent corroboration in the caption or
+  evidence notes; a solid arrow does not certify a fact independently.
+- **Dashed arrow, `Unknown:`:** a relationship or its behavior needs evidence.
+  State what is unknown and connect it to a specific open question.
+- **Dashed arrow, `Hypothesis:`:** an analytical possibility, not an established
+  relationship. Keep competing possibilities explicit when they affect a decision.
+- **Dashed arrow, `Proposed:`:** a suggested future control or feedback link.
+  It is not part of the established incident model.
+
+Include this legend, adapted to the statuses actually used. Put source locators
+beside the diagram and label reconstructed groupings. Use text labels as well
+as line style so uncertainty survives copying and monochrome rendering.
+Translate status labels into the review's language while preserving their
+distinctions.
+
+Keep unknown roles explicitly unknown. If no relationship is established, a
+minimal diagram can connect an unidentified controller and the known process
+with `Unknown:` links. Name the evidence needed to replace those placeholders.
+Such a diagram records the investigation boundary; it must not imply a known
+deployment topology, reporting hierarchy, or shared physical dependency.
+
 ## From evidence to a useful next decision
 
 A strong finding connects an observation to a control problem and states the

@@ -14,18 +14,19 @@ for engineers preparing or reviewing a postmortem.
 Give it an incident report and the available supporting material. The
 result is a concise review containing:
 
-- **Supported conclusions and gaps:** what the sources establish, what is an
-  interpretation, where accounts conflict, and what remains unknown.
-- **Control and feedback analysis:** who or what made relevant decisions, which
-  signals were available, and which constraints applied.
+- **Concrete findings and gaps:** what the sources establish, what each finding
+  changes for a decision, and what remains uncertain.
+- **Control-and-feedback diagram:** controllers, actions, and signals, with
+  unknown, hypothetical, and proposed links explicitly labeled.
 - **Prioritized questions:** what to ask incident participants next and why each
   answer matters.
-- **Improvement discussion:** how existing action items and new proposals relate
-  to the analysis, and how their intended effect could be observed.
+- **Specific proposals:** the finding each action addresses, its prerequisites,
+  and how its intended effect could be observed.
 
-When the evidence is incomplete, a useful result is a clear set of next questions
-and explicit limits on the conclusions. The review can continue as new evidence
-arrives.
+Every review includes the diagram, findings, and proposals. With incomplete
+evidence, it uses explicit unknowns, bounded conclusions, and concrete steps to
+obtain the evidence needed for a decision. The review can continue as new
+evidence arrives.
 
 ## Get started
 

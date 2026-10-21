@@ -1,6 +1,6 @@
 ---
 name: sre-cast-review
-description: Review SRE incident reports and postmortems using CAST. Use when preparing an incident discussion, examining causal claims and action items, identifying evidence gaps, or continuing a review with new answers. Produces an evidence-linked review of control actions, feedback, constraints, prioritized questions, and improvement proposals. Works with incomplete evidence. Do not use for live incident command, production remediation, or a summary with no analytical review.
+description: Review SRE incident reports and postmortems using CAST. Use when preparing an incident discussion, examining causal claims and action items, identifying evidence gaps, or continuing a review with new answers. Produces a control-and-feedback diagram with explicit unknowns, concrete evidence-linked findings, prioritized questions, and improvement proposals. Works with incomplete evidence. Do not use for live incident command, production remediation, or a summary with no analytical review.
 ---
 
 # SRE CAST Review
@@ -9,6 +9,17 @@ Help an engineer understand what an incident explanation establishes, what
 remains uncertain, and which answers would change the next decision. Apply
 CAST (Causal Analysis based on System Theory) proportionately to the available
 evidence. A public-source review is not a completed internal investigation.
+
+Every delivered review, including a brief or revised review, must contain:
+
+- a diagram of control actions and feedback, with uncertain links explicit;
+- concrete findings with their evidence, practical implications, and limits;
+- specific proposals tied to those findings and observable intended effects.
+
+Questions support these results; they do not replace them. With insufficient
+evidence, a finding can identify a specific decision that cannot yet be made,
+and its proposal can request the evidence needed to make that decision. Do not
+invent causal conclusions or implementation fixes to satisfy the format.
 
 ## Inputs and working boundary
 
@@ -35,7 +46,8 @@ authorization without adding a separate approval stage.
 
 Read [the review guide](references/review-guide.md) before the analysis.
 Use [the output template](assets/review-template.md) when structuring a saved
-review or when a scaffold helps. Adapt it; do not fill empty sections for form.
+review or when a scaffold helps. Adapt its layout while retaining the required
+diagram, findings, and proposals.
 
 ### 1. Establish what is known
 
@@ -75,8 +87,17 @@ does not establish it. Trace interactions and missing feedback beyond a trigger
 such as a bad command, configuration, or regex. Explain what made decisions
 reasonable in context where evidence permits, without speculating.
 
-Use a small table or diagram only if it clarifies the relationships. Mark
-reconstructed links and proposed feedback. Do not force every incident into the
+Draw a compact control-and-feedback diagram in every review. Prefer a Mermaid
+flowchart; include the Mermaid source if rendering is unavailable. A table may
+supplement the diagram. Show the relevant controllers, controlled processes,
+labeled actions, and feedback, not only the sequence of failures.
+
+Use the [diagram conventions](references/review-guide.md#diagram-conventions):
+source-supported links are solid; uncertain or proposed links are dashed with
+explicit status labels. Include a legend and source locators beside the model.
+With thin evidence, use a minimal model with unknown roles or links identified;
+do not complete a topology from assumption. Connect consequential unknown links
+to questions that would resolve them. Do not force every incident into the
 Cloudflare example's rollout, resource-budget, and recovery categories.
 
 ### 3. Prioritize questions that change a decision
@@ -86,8 +107,9 @@ For each, state the uncertainty, evidence to request, and which conclusion or
 decision the answer could change. Suggest respondent roles only when useful;
 a suggested respondent is not an assigned owner.
 
-With thin evidence, make these questions the main result. Keep competing
-explanations visible and avoid filling the gaps with generic causal claims.
+With thin evidence, prioritize these questions while retaining the diagram,
+bounded findings, and evidence-gathering proposals. Keep competing explanations
+visible and avoid filling the gaps with generic causal claims.
 If the material contradicts a finding, cite the conflict and narrow or revise
 the finding instead of silently choosing a version.
 
@@ -108,17 +130,27 @@ behavior. An observation of improvement is not proof that a measure would have
 prevented the incident. Make availability, security, and recovery tradeoffs
 explicit where they arise.
 
+Make each proposal actionable: identify the related finding or diagram link,
+the behavior to change or evidence to obtain, the observation that would show
+progress, and the decision or prerequisite still unresolved. If implementation
+depends on missing evidence, state that condition and a concrete next step.
+
 ### 5. Deliver and continue
 
-Lead with the useful conclusion and its limits. Include the evidence boundary,
-supported findings and gaps, relevant control relationships, prioritized
-questions, and improvement discussion. Keep evidence close to claims and
-separate service recovery from other restoration milestones when applicable.
+Lead with concrete findings: what the evidence supports, what it means for a
+control or decision, and what remains uncertain. Avoid an outcome consisting
+only of generic advice to investigate further. Include the evidence boundary,
+diagram, prioritized questions, and proposals. Keep evidence close to claims
+and separate service recovery from other restoration milestones when applicable.
 Save to a user-requested location; otherwise return the review in the chat.
+Even when saving an artifact, show its diagram and key findings and proposals
+in the delivery response so the user can see the result without opening a file.
 
 When new answers arrive, use the earlier review and their source/date. Revise
 only the affected findings, control relationships, questions, and proposals.
-Briefly explain what changed and why. Mark questions answered, partly answered,
+Carry the current diagram, findings, and proposals into the revised review;
+change link status only when the new evidence justifies it. Briefly explain
+what changed and why. Mark questions answered, partly answered,
 or still open; keep unresolved conflicts. Participant recollection remains
 attributed testimony, not independent corroboration. Revise or withdraw earlier
 proposals when their premise no longer holds. If the earlier review is
