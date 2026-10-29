@@ -2,8 +2,8 @@
 
 Incident review rules and a skill that turns evidence into an interactive map.
 
-**[Visit the project site](https://helixthinker.github.io/sre-cast/)** ·
-**[Explore the Cloudflare map](https://helixthinker.github.io/sre-cast/examples/cloudflare.html)**
+**[Visit the project site](https://nilx6874.github.io/sre-cast/)** ·
+**[Explore the Cloudflare map](https://nilx6874.github.io/sre-cast/examples/cloudflare.html)**
 
 The rules explain what matters in a review. The skill makes a usable artifact:
 select a relationship to inspect its evidence, uncertainty, finding, and proposed
@@ -50,10 +50,10 @@ relationship content; it does not add nodes or rearrange the graph.
 
 ## Example
 
-[Cloudflare, July 2, 2019](https://helixthinker.github.io/sre-cast/examples/cloudflare.html)
+[Cloudflare, July 2, 2019](https://nilx6874.github.io/sre-cast/examples/cloudflare.html)
 maps release control, resource contention, incident feedback, and emergency
 response. Open the live map, or download [its HTML file](examples/cloudflare.html)
-for offline use. The [project site](https://helixthinker.github.io/sre-cast/#example)
+for offline use. The [project site](https://nilx6874.github.io/sre-cast/#example)
 introduces the analysis and its concrete proposals. Select a line in the homepage
 diagram, or use its relationship buttons, to read the finding, sources, open
 question, proposal, and observable check directly below it. The homepage loads
@@ -67,7 +67,7 @@ this choice when local storage is available; maps also work when storage is bloc
 Exported maps use the viewer's preference, not the author's resolved light/dark state.
 
 The blue palette and theme behavior are adapted from
-[tsastat](https://github.com/HelixThinker/tsastat/tree/640ff8c2206679ede87e6c9835e3a0903c6086b6/site).
+[tsastat](https://github.com/nilx6874/tsastat/tree/640ff8c2206679ede87e6c9835e3a0903c6086b6/site).
 Text uses a system font, generous line spacing, and restrained accents. Status
 names and dashed lines carry meaning alongside color. Controls have visible
 keyboard focus and at least 44 px height. The layout reflows; the diagram can
