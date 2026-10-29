@@ -194,7 +194,7 @@ footer div { display:flex; gap:24px; }
 <header class="site-header wrap">
   <a class="brand" href="./" aria-label="SRE CAST home"><svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="5" stroke="currentColor" stroke-width="2"/><path d="M2 14h24M14 2v24" stroke="currentColor" stroke-width="2"/></svg>SRE CAST</a>
   <nav aria-label="Main navigation">
-    <a href="#example">Example</a><a href="#start">Get started</a><a href="https://github.com/HelixThinker/sre-cast">GitHub <span aria-hidden="true">↗</span></a>
+    <a href="#example">Example</a><a href="#start">Get started</a><a href="https://github.com/nilx6874/sre-cast">GitHub <span aria-hidden="true">↗</span></a>
     <div class="theme" id="theme-control" hidden><label for="theme">Theme</label><select id="theme"><option value="system">Auto · system</option><option value="light">Light</option><option value="dark">Dark</option></select></div>
   </nav>
 </header>
@@ -259,13 +259,13 @@ footer div { display:flex; gap:24px; }
     <div class="case-footer"><p>This is our partial analysis of Cloudflare’s <a href="https://blog.cloudflare.com/cloudflare-outage/">July 2 account</a> and <a href="https://blog.cloudflare.com/details-of-the-cloudflare-outage-on-july-2-2019/">July 12 postmortem</a>, not an internal investigation. The full map attaches source passages, findings, and proposals to each relationship.</p><a class="button primary" href="examples/cloudflare.html">Open the full analysis <span aria-hidden="true">↗</span></a></div>
   </section>
   <section class="content start" id="start" aria-labelledby="start-title"><div class="wrap start-grid">
-    <div><p class="eyebrow">Use it on your next incident</p><h2 id="start-title">Bring the evidence.<br>Leave with a working map.</h2><p>SRE CAST combines practical <a href="https://github.com/HelixThinker/sre-cast/blob/main/skills/incident-map/rules.md">review rules</a>, informed by Nancy Leveson’s CAST handbook, with an <a href="https://github.com/HelixThinker/sre-cast/blob/main/skills/incident-map/SKILL.md">incident-map skill</a>. Use the rules alone or give the skill to your agent.</p><ol><li><a href="https://github.com/HelixThinker/sre-cast">Get the repository</a> and keep the whole <code>skills/incident-map/</code> folder together.</li><li>Give your agent the prompt and an incident report, timeline, or other evidence.</li><li>Open the generated HTML. Select a relationship, edit its details, and use <strong>Save HTML</strong> to keep a new copy.</li></ol></div>
+    <div><p class="eyebrow">Use it on your next incident</p><h2 id="start-title">Bring the evidence.<br>Leave with a working map.</h2><p>SRE CAST combines practical <a href="https://github.com/nilx6874/sre-cast/blob/main/skills/incident-map/rules.md">review rules</a>, informed by Nancy Leveson’s CAST handbook, with an <a href="https://github.com/nilx6874/sre-cast/blob/main/skills/incident-map/SKILL.md">incident-map skill</a>. Use the rules alone or give the skill to your agent.</p><ol><li><a href="https://github.com/nilx6874/sre-cast">Get the repository</a> and keep the whole <code>skills/incident-map/</code> folder together.</li><li>Give your agent the prompt and an incident report, timeline, or other evidence.</li><li>Open the generated HTML. Select a relationship, edit its details, and use <strong>Save HTML</strong> to keep a new copy.</li></ol></div>
     <div><div class="prompt"><div class="prompt-bar"><span>Your starting prompt</span><button id="copy" type="button" hidden>Copy prompt</button></div><pre id="prompt">Use skills/incident-map/SKILL.md to map this incident: [report URL or file].
 
 Save the interactive map as incident.html. Mark unknown relationships and show which evidence would change the next decision.</pre></div><p class="copy-state" id="copy-state" role="status"></p><p class="footnote">The output is a standalone HTML file. No account or server is needed to use it; following external sources needs internet. Edits stay in the open page until you save a new copy.</p><p class="footnote">The skill makes the review inspectable and editable. It does not guarantee a better analysis or replace access to incident participants.</p></div>
   </div></section>
 </main>
-<footer class="wrap"><p>SRE CAST · Make the next decision clearer.</p><div><a href="https://github.com/HelixThinker/sre-cast">Source on GitHub</a><a href="https://github.com/HelixThinker/sre-cast/blob/main/LICENSE">Apache 2.0</a></div></footer>
+<footer class="wrap"><p>SRE CAST · Make the next decision clearer.</p><div><a href="https://github.com/nilx6874/sre-cast">Source on GitHub</a><a href="https://github.com/nilx6874/sre-cast/blob/main/LICENSE">Apache 2.0</a></div></footer>
 <script>
 const themeControl = document.getElementById('theme');
 themeControl.value = document.documentElement.dataset.theme || 'system';
